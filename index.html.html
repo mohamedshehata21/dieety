@@ -1,0 +1,3085 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>خطة InBody – تحول صحي</title>
+
+<!-- ═══ iOS PWA ═══ -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="InBody خطتي">
+<meta name="theme-color" content="#f5a623">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Apple Touch Icon (inline SVG → PNG via canvas trick) -->
+<link rel="apple-touch-icon" id="touch-icon-link">
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<script>
+// ── Generate app icon inline ──
+(function(){
+  const c = document.createElement('canvas');
+  c.width = c.height = 192;
+  const ctx = c.getContext('2d');
+  // background
+  const g = ctx.createLinearGradient(0,0,192,192);
+  g.addColorStop(0,'#1e2333'); g.addColorStop(1,'#0f1117');
+  ctx.fillStyle = g; ctx.roundRect(0,0,192,192,36); ctx.fill();
+  // ring
+  ctx.strokeStyle='#f5a623'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.arc(96,96,70,0,Math.PI*2); ctx.stroke();
+  // text
+  ctx.fillStyle='#f5a623'; ctx.font='bold 52px Cairo,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('💪',96,88);
+  ctx.fillStyle='#e8ecf4'; ctx.font='bold 22px Cairo,sans-serif';
+  ctx.fillText('InBody',96,138);
+  const link = document.getElementById('touch-icon-link');
+  if(link) link.href = c.toDataURL('image/png');
+  // ── Manifest (blob) ──
+  const manifest = {
+    name:'خطة InBody – تحول صحي',short_name:'InBody خطتي',
+    start_url:'.',display:'standalone',
+    background_color:'#0f1117',theme_color:'#f5a623',
+    lang:'ar',dir:'rtl',
+    icons:[{src:c.toDataURL('image/png'),sizes:'192x192',type:'image/png'}]
+  };
+  const blob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const ml = document.createElement('link');
+  ml.rel='manifest'; ml.href=URL.createObjectURL(blob);
+  document.head.appendChild(ml);
+})();
+</script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --card: #1e2333;
+    --border: #2a3045;
+    --accent: #f5a623;
+    --accent2: #4ecdc4;
+    --accent3: #ff6b6b;
+    --accent4: #a8e6cf;
+    --text: #e8ecf4;
+    --muted: #8892a4;
+    --green: #56c596;
+    --red: #ff6b6b;
+    --blue: #5b9cf6;
+    --purple: #b084f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1f35 0%, #0f1117 50%, #1a1510 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 40px 32px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(245,166,35,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header h1 { font-size: 2rem; font-weight: 900; color: var(--accent); letter-spacing: -0.5px; }
+  .header p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: 1.15rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+  .badge.blue { background: var(--blue); }
+  .badge.green { background: var(--green); color: #000; }
+  .badge.red { background: var(--red); color: #fff; }
+  .badge.purple { background: var(--purple); color: #fff; }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-card .val { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+  .stat-card .val.red { color: var(--red); }
+  .stat-card .val.green { color: var(--green); }
+  .stat-card .val.blue { color: var(--blue); }
+  .stat-card .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  /* Alert boxes */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert.warning { background: rgba(245,166,35,0.1); border-right: 3px solid var(--accent); }
+  .alert.danger  { background: rgba(255,107,107,0.1); border-right: 3px solid var(--red); }
+  .alert.success { background: rgba(86,197,150,0.1); border-right: 3px solid var(--green); }
+  .alert.info    { background: rgba(91,156,246,0.1); border-right: 3px solid var(--blue); }
+
+  /* Macro bar */
+  .macro-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .macro-label { width: 90px; font-size: 0.85rem; font-weight: 700; }
+  .macro-bar-wrap { flex: 1; background: var(--surface); border-radius: 8px; height: 18px; overflow: hidden; }
+  .macro-bar { height: 100%; border-radius: 8px; transition: width 0.5s; }
+  .macro-val { min-width: 100px; font-size: 0.82rem; color: var(--muted); text-align: left; }
+
+  /* Tables */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 600px; }
+  th {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 700;
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .meal-name { font-weight: 700; color: var(--accent2); white-space: nowrap; }
+  .kcal { color: var(--accent); font-weight: 700; }
+  .protein { color: var(--green); font-weight: 600; }
+  .alt { color: var(--muted); font-size: 0.78rem; }
+  .out-alt { color: var(--purple); font-size: 0.78rem; font-style: italic; }
+
+  /* Day tabs */
+  .day-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .day-tab {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .day-tab.active, .day-tab:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* Timeline */
+  .timeline { position: relative; padding-right: 20px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    right: 6px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: var(--border);
+  }
+  .t-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .t-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 3px;
+    position: relative;
+    z-index: 1;
+  }
+  .t-dot.blue { background: var(--blue); }
+  .t-dot.green { background: var(--green); }
+  .t-dot.red { background: var(--red); }
+  .t-dot.purple { background: var(--purple); }
+  .t-time { min-width: 65px; font-weight: 700; font-size: 0.82rem; color: var(--accent); }
+  .t-content { font-size: 0.88rem; }
+  .t-title { font-weight: 700; margin-bottom: 2px; }
+
+  /* Exercise grid */
+  .ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .ex-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .ex-day { font-weight: 900; color: var(--accent2); margin-bottom: 8px; font-size: 0.9rem; }
+  .ex-item { font-size: 0.82rem; color: var(--muted); padding: 3px 0; border-bottom: 1px solid var(--border); }
+  .ex-item:last-child { border-bottom: none; }
+  .ex-sets { color: var(--accent); font-size: 0.78rem; margin-right: 6px; }
+
+  /* Pills */
+  .pill-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+  }
+  .pill.green { border-color: var(--green); color: var(--green); }
+  .pill.red   { border-color: var(--red);   color: var(--red); }
+  .pill.amber { border-color: var(--accent); color: var(--accent); }
+
+  /* Shopping list */
+  .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .shop-cat { background: var(--surface); border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+  .shop-cat h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; color: var(--accent2); }
+  .shop-item { font-size: 0.8rem; padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+  .shop-item::before { content: '◆'; font-size: 0.5rem; color: var(--accent); flex-shrink: 0; }
+
+  /* ── Custom Checkboxes ── */
+  .chk-wrap {
+    display: flex; align-items: flex-start; gap: 10px;
+    cursor: pointer; user-select: none;
+    padding: 6px 8px; border-radius: 8px;
+    transition: background 0.15s; width: 100%;
+  }
+  .chk-wrap:hover { background: rgba(255,255,255,0.04); }
+  .chk-box {
+    width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .chk-wrap.done .chk-box { background: var(--green); border-color: var(--green); }
+  .chk-wrap.done .chk-box::after { content: '✓'; color: #000; font-weight: 900; font-size: 12px; }
+  .chk-wrap.done .chk-label { text-decoration: line-through; color: var(--muted); opacity: 0.65; }
+  .chk-label { font-size: 0.85rem; line-height: 1.5; }
+
+  .shop-chk { display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; padding: 3px 4px; border-radius: 6px; transition: background 0.15s; }
+  .shop-chk:hover { background: rgba(255,255,255,0.04); }
+  .shop-chk .chk-box { width: 16px; height: 16px; border-radius: 4px; margin-top: 0; }
+  .shop-chk.done .chk-box { background: var(--green); border-color: var(--green); }
+  .shop-chk.done .chk-box::after { content: '✓'; color: #000; font-weight: 900; font-size: 10px; }
+  .shop-chk.done .chk-label { text-decoration: line-through; color: var(--muted); opacity: 0.6; font-size: 0.8rem; }
+  .shop-chk .chk-label { font-size: 0.8rem; }
+
+  .tracker-bar-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .tracker-title { font-weight: 700; font-size: 0.85rem; color: var(--accent); white-space: nowrap; }
+  .tracker-progress { flex: 1; min-width: 100px; }
+  .t-bar-outer { background: var(--border); border-radius: 8px; height: 10px; overflow: hidden; }
+  .t-bar-inner { height: 100%; background: var(--green); border-radius: 8px; transition: width 0.4s; }
+  .tracker-pct { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+  .reset-btn {
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Cairo', sans-serif; font-size: 0.75rem;
+    padding: 4px 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* weight inputs */
+  .weight-input {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'Cairo', sans-serif; font-size: 0.85rem;
+    padding: 5px 8px; width: 80px; text-align: center;
+    transition: border-color 0.2s;
+  }
+  .weight-input:focus { outline: none; border-color: var(--accent); }
+  .weight-input::-webkit-inner-spin-button { opacity: 0.5; }
+
+  /* ── Sticky Dashboard ── */
+  .sticky-dash {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(15,17,23,0.97);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .sd-block { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:80px; }
+  .sd-label { font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .sd-val { font-size:1.1rem; font-weight:900; color:var(--text); }
+  .sd-val.accent { color:var(--accent); }
+  .sd-val.green { color:var(--green); }
+  .sd-val.blue { color:var(--blue); }
+  .sd-sep { width:1px; height:36px; background:var(--border); flex-shrink:0; }
+  .sd-prog { flex:1; min-width:120px; }
+  .sd-prog-bar { background:var(--border); border-radius:4px; height:6px; overflow:hidden; margin-top:4px; }
+  .sd-prog-fill { height:100%; border-radius:4px; transition:width .3s; background:var(--green); }
+  .water-btns { display:flex; align-items:center; gap:6px; }
+  .water-btn {
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--border);
+    background:var(--surface); color:var(--text); font-size:1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .15s;
+  }
+  .water-btn:hover { border-color:var(--blue); color:var(--blue); }
+  .day-toggle { display:flex; gap:6px; }
+  .day-tog-btn {
+    font-family:'Cairo',sans-serif; font-size:0.72rem; font-weight:700;
+    padding:4px 10px; border-radius:6px; border:1px solid var(--border);
+    background:var(--surface); color:var(--muted); cursor:pointer; transition:all .15s;
+  }
+  .day-tog-btn.active-train { background:var(--accent); color:#000; border-color:var(--accent); }
+  .day-tog-btn.active-rest  { background:var(--blue);   color:#fff; border-color:var(--blue); }
+  .sd-checklist { display:flex; gap:6px; flex-wrap:wrap; }
+  .sd-chk {
+    font-size:0.7rem; padding:3px 8px; border-radius:12px;
+    border:1px solid var(--border); background:var(--surface); color:var(--muted);
+    cursor:pointer; user-select:none; transition:all .15s;
+  }
+  .sd-chk.done { background:var(--green); color:#000; border-color:var(--green); }
+  .sd-countdown { font-size:0.78rem; color:var(--accent); font-weight:700; white-space:nowrap; }
+  @media(max-width:600px){.sticky-dash{gap:10px;padding:8px 12px;} .sd-sep{display:none;}}
+
+  /* ── Meal Prep ── */
+  .prep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:14px; }
+  .prep-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .prep-card-head { padding:12px 16px; display:flex; align-items:center; gap:10px; }
+  .prep-card-body { padding:12px 16px; font-size:0.8rem; line-height:1.9; color:var(--muted); }
+  .prep-done-btn {
+    width:22px; height:22px; border-radius:5px; border:2px solid var(--border);
+    background:var(--card); flex-shrink:0; cursor:pointer; display:flex;
+    align-items:center; justify-content:center; font-size:12px; transition:all .2s;
+  }
+  .prep-card.prepped .prep-done-btn { background:var(--green); border-color:var(--green); }
+  .prep-card.prepped .prep-done-btn::after { content:'✓'; color:#000; font-weight:900; }
+  .prep-card.prepped { opacity:.7; }
+  .prep-tag { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; }
+  .freeze-badge { background:rgba(91,156,246,.15); color:var(--blue); border:1px solid rgba(91,156,246,.3); border-radius:8px; padding:4px 8px; font-size:0.75rem; margin-top:6px; display:inline-block; }
+
+  /* ── Measurements ── */
+  .meas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin-bottom:18px; }
+  .meas-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+  .meas-val-big { font-size:1.6rem; font-weight:900; color:var(--accent2); }
+  .meas-diff { font-size:0.78rem; margin-top:4px; }
+  .meas-input { background:var(--card); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Cairo',sans-serif; font-size:0.9rem; padding:6px 10px; width:80px; text-align:center; margin-top:6px; }
+  .meas-input:focus { outline:none; border-color:var(--accent2); }
+
+  /* ── Workout Log ── */
+  .wlog-week-sel { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .wlog-week-btn { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 14px; font-family:'Cairo',sans-serif; font-size:0.8rem; font-weight:700; color:var(--muted); cursor:pointer; transition:all .2s; }
+  .wlog-week-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+  .wlog-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  .wlog-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .wlog-day { font-weight:900; color:var(--accent2); margin-bottom:12px; font-size:0.9rem; }
+  .wlog-ex { display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:0.82rem; }
+  .wlog-ex-name { flex:1; color:var(--muted); }
+  .wlog-inp { background:var(--card); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:'Cairo',sans-serif; font-size:0.8rem; padding:4px 8px; width:62px; text-align:center; }
+  .wlog-inp:focus { outline:none; border-color:var(--accent); }
+  .wlog-pr { font-size:0.7rem; color:var(--green); white-space:nowrap; }
+
+  /* ── iOS Safe Area ── */
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .sticky-dash { padding-top: max(10px, env(safe-area-inset-top)); }
+
+  /* ── Install Banner ── */
+  .install-banner {
+    display: none;
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 999;
+    background: linear-gradient(135deg, #1e2333, #181c27);
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 14px 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    max-width: 340px; width: calc(100% - 40px);
+    animation: slideUp .4s ease;
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+  .install-banner.show { display: block; }
+  .install-banner h4 { margin:0 0 6px; color:var(--accent); font-size:.95rem; }
+  .install-banner p  { margin:0 0 12px; color:var(--muted); font-size:.8rem; line-height:1.6; }
+  .install-steps { font-size:.78rem; color:var(--text); line-height:2; margin-bottom:10px; }
+  .install-close { background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--muted); font-family:'Cairo',sans-serif; font-size:.78rem; padding:5px 14px; cursor:pointer; float:left; }
+  .calc-wrap { background:linear-gradient(135deg,rgba(245,166,35,.08),rgba(86,197,150,.05)); border:2px solid var(--accent); border-radius:14px; padding:22px; }
+  .calc-input-big { background:var(--surface); border:2px solid var(--accent); border-radius:10px; color:var(--text); font-family:'Cairo',sans-serif; font-size:1.4rem; font-weight:900; padding:10px 16px; width:140px; text-align:center; }
+  .calc-input-big:focus { outline:none; }
+  .calc-result { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:18px; }
+  .calc-res-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center; }
+  .calc-res-val { font-size:1.5rem; font-weight:900; }
+  .calc-res-lbl { font-size:0.75rem; color:var(--muted); margin-top:3px; }
+  .phase-indicator { text-align:center; padding:16px; background:rgba(86,197,150,.08); border:1px solid var(--green); border-radius:10px; margin-top:14px; }
+
+  /* Goals */
+  .goals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .goal-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 18px;
+    border-top: 3px solid var(--accent);
+    text-align: center;
+  }
+  .goal-card.blue { border-top-color: var(--blue); }
+  .goal-card.green { border-top-color: var(--green); }
+  .goal-num { font-size: 2rem; font-weight: 900; color: var(--accent); }
+  .goal-card.blue .goal-num { color: var(--blue); }
+  .goal-card.green .goal-num { color: var(--green); }
+
+  /* Version toggle */
+  .version-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
+  .ver-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .ver-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  .plan-version { display: none; }
+  .plan-version.visible { display: block; }
+  .plan-phase { display: none; }
+  .plan-phase.visible { display: block; }
+  .sub-ver { display: none; }
+  .sub-ver.visible { display: block; }
+
+  .note { font-size: 0.78rem; color: var(--muted); margin-top: 6px; padding-right: 8px; }
+
+  h3 { font-size: 0.95rem; font-weight: 700; color: var(--accent); margin: 16px 0 10px; }
+</style>
+</head>
+<body>
+
+<!-- ── iOS Install Banner ── -->
+<div class="install-banner" id="install-banner">
+  <h4>📱 أضف التطبيق للـ Home Screen</h4>
+  <p>عشان تفتحه زي أي أبليكيشن بدون متصفح:</p>
+  <div class="install-steps">
+    1️⃣ اضغط أيقونة المشاركة <strong>□↑</strong> في Safari<br>
+    2️⃣ اختر <strong>"Add to Home Screen"</strong><br>
+    3️⃣ اضغط <strong>"Add"</strong> — خلاص! 🎉
+  </div>
+  <button class="install-close" onclick="document.getElementById('install-banner').classList.remove('show'); localStorage.setItem('install_dismissed','1')">تمام، شكراً</button>
+</div>
+
+<div class="header">
+  <h1>🎯 خطة التحول الصحي – InBody Plan</h1>
+  <p>مبنية على نتائج تحليل InBody الشخصي • ذكر • 27 سنة • 121 كجم • 180 سم</p>
+</div>
+
+<!-- ── STICKY DAILY DASHBOARD ── -->
+<div class="sticky-dash" id="sticky-dash">
+  <div class="sd-block">
+    <div class="sd-label">اليوم</div>
+    <div class="day-toggle">
+      <button class="day-tog-btn" id="tog-train" onclick="setDayType('train')">🏋️ تمرين</button>
+      <button class="day-tog-btn" id="tog-rest"  onclick="setDayType('rest')">😴 راحة</button>
+    </div>
+  </div>
+  <div class="sd-sep"></div>
+  <div class="sd-block" style="min-width:150px;">
+    <div class="sd-label">السعرات 🔥</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input id="sd-cal-inp" type="number" min="0" step="50"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--accent);font-family:'Cairo',sans-serif;font-size:1rem;font-weight:900;padding:3px 8px;width:80px;text-align:center;"
+        oninput="sdUpdateCal(this.value)" placeholder="0">
+      <span id="sd-cal-target" style="font-size:0.78rem;color:var(--muted);">/ 2000</span>
+    </div>
+    <div class="sd-prog"><div class="sd-prog-bar"><div class="sd-prog-fill" id="sd-cal-bar" style="width:0%"></div></div></div>
+  </div>
+  <div class="sd-sep"></div>
+  <div class="sd-block">
+    <div class="sd-label">الماء 💧</div>
+    <div class="water-btns">
+      <button class="water-btn" onclick="sdWater(-1)">−</button>
+      <span class="sd-val blue" id="sd-water">0</span>
+      <button class="water-btn" onclick="sdWater(1)">+</button>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);">كوب / 12</div>
+  </div>
+  <div class="sd-sep"></div>
+  <div class="sd-block">
+    <div class="sd-label">⏰ نافذة الأكل</div>
+    <div class="sd-countdown" id="sd-window">—</div>
+  </div>
+  <div class="sd-sep"></div>
+  <div class="sd-block" style="min-width:240px;">
+    <div class="sd-label">✅ Checklist اليوم</div>
+    <div class="sd-checklist">
+      <span class="sd-chk" data-sdchk="s_breakfast" onclick="sdToggle(this)">فطار</span>
+      <span class="sd-chk" data-sdchk="s_snack"     onclick="sdToggle(this)">سناك</span>
+      <span class="sd-chk" data-sdchk="s_lunch"     onclick="sdToggle(this)">غداء</span>
+      <span class="sd-chk" data-sdchk="s_dinner"    onclick="sdToggle(this)">عشاء</span>
+      <span class="sd-chk" data-sdchk="s_workout"   onclick="sdToggle(this)">تمرين</span>
+      <span class="sd-chk" data-sdchk="s_water"     onclick="sdToggle(this)">ماء</span>
+      <span class="sd-chk" data-sdchk="s_sleep"     onclick="sdToggle(this)">نوم</span>
+    </div>
+  </div>
+  <div style="margin-right:auto; font-size:0.75rem; color:var(--muted); white-space:nowrap;" id="sd-date"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 1: ANALYSIS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>📊</span> تحليل نتائج InBody
+    <span class="badge red">أولوية عالية</span>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="val red">45%</div><div class="lbl">نسبة الدهون PBF</div></div>
+    <div class="stat-card"><div class="val red">54.4 كجم</div><div class="lbl">كتلة الدهون</div></div>
+    <div class="stat-card"><div class="val">37.5 كجم</div><div class="lbl">كتلة العضلات SMM</div></div>
+    <div class="stat-card"><div class="val red">20</div><div class="lbl">دهون احشائية (خطر)</div></div>
+    <div class="stat-card"><div class="val red">1.12</div><div class="lbl">Waist-Hip Ratio</div></div>
+    <div class="stat-card"><div class="val blue">1808</div><div class="lbl">BMR (kcal/يوم)</div></div>
+    <div class="stat-card"><div class="val red">37.3</div><div class="lbl">BMI</div></div>
+    <div class="stat-card"><div class="val red">43/100</div><div class="lbl">InBody Score</div></div>
+  </div>
+
+  <div class="alert danger">
+    <span>⚠️</span>
+    <div><strong>المشكلة الأساسية:</strong> الدهون الحشوية (Visceral Fat = 20) في النطاق الخطر جداً. هذا النوع من الدهون يحيط بالأعضاء الداخلية ويرفع خطر الأمراض المزمنة بشكل كبير. الأولوية القصوى هي إنزال هذا الرقم.</div>
+  </div>
+
+  <div class="alert warning">
+    <span>💪</span>
+    <div><strong>الخبر الجيد:</strong> كتلة العضلات (37.5 كجم) مقبولة بالنسبة لوزنك الحالي. الجسم عنده قاعدة عضلية محترمة تساعد في رفع معدل الحرق وتسهّل الوصول للنتيجة.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
+    <div class="alert success">
+      <div>
+        <strong>🎯 الأولوية الآن:</strong><br>
+        <strong style="color: var(--green)">خسارة الدهون 100%</strong><br>
+        <span style="font-size:0.8rem; color: var(--muted)">لا حاجة لبناء عضلات الآن. الحفاظ على ما عندك يكفي.</span>
+      </div>
+    </div>
+    <div class="alert info">
+      <div>
+        <strong>🏆 أهم 3 أهداف الآن:</strong>
+        <ol style="margin-top:6px; margin-right:16px; font-size:0.85rem;">
+          <li>إنزال الدهون الحشوية من 20 → أقل من 10</li>
+          <li>خسارة 15-20 كجم دهون في أول 3 شهور</li>
+          <li>تحسين الـ Waist-Hip Ratio لأقل من 0.95</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 2: CALORIES & MACROS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🔢</span> حساب السعرات والماكروز
+    <span class="badge blue">محسوب علمياً</span>
+  </div>
+
+  <div class="alert info">
+    <div>
+      <strong>الرقم في التقرير (3120 kcal) = سعرات الصيانة</strong> – هذا ما يحتاجه جسمك للحفاظ على وزنك الحالي. نحن نحتاج عجزاً لخسارة الدهون.
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+    <div style="background: rgba(245,166,35,0.08); border: 1px solid var(--accent); border-radius: 10px; padding: 16px; text-align: center;">
+      <div style="font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;">🏋️ أيام التمرين</div>
+      <div style="font-size: 2.2rem; font-weight: 900; color: var(--accent);">2000</div>
+      <div style="font-size: 0.75rem; color: var(--muted);">سعرة حرارية / يوم</div>
+      <div style="font-size: 0.75rem; color: var(--accent); margin-top: 4px;">عجز ~1100 kcal</div>
+    </div>
+    <div style="background: rgba(91,156,246,0.08); border: 1px solid var(--blue); border-radius: 10px; padding: 16px; text-align: center;">
+      <div style="font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;">😴 أيام الراحة</div>
+      <div style="font-size: 2.2rem; font-weight: 900; color: var(--blue);">1700</div>
+      <div style="font-size: 0.75rem; color: var(--muted);">سعرة حرارية / يوم</div>
+      <div style="font-size: 0.75rem; color: var(--blue); margin-top: 4px;">عجز ~1400 kcal</div>
+    </div>
+  </div>
+
+  <h3>📐 الماكروز اليومية – أيام التمرين (2000 kcal)</h3>
+  <div class="macro-row">
+    <div class="macro-label" style="color: var(--green);">🥩 بروتين</div>
+    <div class="macro-bar-wrap"><div class="macro-bar" style="width:27%; background: var(--green);"></div></div>
+    <div class="macro-val"><strong style="color: var(--green);">135 جم</strong> = 540 kcal (27%)</div>
+  </div>
+  <div class="macro-row">
+    <div class="macro-label" style="color: var(--blue);">🌾 كارب</div>
+    <div class="macro-bar-wrap"><div class="macro-bar" style="width:43%; background: var(--blue);"></div></div>
+    <div class="macro-val"><strong style="color: var(--blue);">215 جم</strong> = 860 kcal (43%)</div>
+  </div>
+  <div class="macro-row">
+    <div class="macro-label" style="color: var(--accent);">🥑 دهون</div>
+    <div class="macro-bar-wrap"><div class="macro-bar" style="width:30%; background: var(--accent);"></div></div>
+    <div class="macro-val"><strong style="color: var(--accent);">67 جم</strong> = 600 kcal (30%)</div>
+  </div>
+
+  <h3>📐 الماكروز اليومية – أيام الراحة (1700 kcal)</h3>
+  <div class="macro-row">
+    <div class="macro-label" style="color: var(--green);">🥩 بروتين</div>
+    <div class="macro-bar-wrap"><div class="macro-bar" style="width:32%; background: var(--green);"></div></div>
+    <div class="macro-val"><strong style="color: var(--green);">135 جم</strong> = 540 kcal (32%)</div>
+  </div>
+  <div class="macro-row">
+    <div class="macro-label" style="color: var(--blue);">🌾 كارب</div>
+    <div class="macro-bar-wrap"><div class="macro-bar" style="width:35%; background: var(--blue);"></div></div>
+    <div class="macro-val"><strong style="color: var(--blue);">155 جم</strong> = 620 kcal (35%)</div>
+  </div>
+  <div class="macro-row">
+    <div class="macro-label" style="color: var(--accent);">🥑 دهون</div>
+    <div class="macro-bar-wrap"><div class="macro-bar" style="width:32%; background: var(--accent);"></div></div>
+    <div class="macro-val"><strong style="color: var(--accent);">60 جم</strong> = 540 kcal (32%)</div>
+  </div>
+
+  <div class="note">* البروتين ثابت في الحالتين للحفاظ على العضلات. الكارب هو المتغير الرئيسي بين أيام التمرين والراحة.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 3: MEAL PLAN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🍽️</span> خطة الأكل الأسبوعية (7 أيام)
+    <span class="badge green">نافذة أكل 12م – 8م</span>
+  </div>
+
+  <div class="alert info">
+    <span>⏰</span>
+    <div>
+      <strong>مواعيد الوجبات الثابتة:</strong>
+      الفطار <strong>12:00 م</strong> | السناك <strong>3:30 م</strong> | الغداء <strong>5:30 م</strong> | العشاء <strong>7:30 م</strong>
+      <br><span style="font-size:0.8rem">2 كوب ماء (500ml) قبل كل وجبة رئيسية</span>
+    </div>
+  </div>
+
+  <div class="version-toggle">
+    <button class="ver-btn active" onclick="showVersion('train')">🏋️ أيام التمرين (2000 kcal)</button>
+    <button class="ver-btn" onclick="showVersion('rest')">😴 أيام الراحة (1700 kcal)</button>
+  </div>
+
+  <!-- TRAINING VERSION -->
+  <div class="plan-version visible" id="ver-train">
+    <div class="alert warning"><span>💪</span><div>أيام التمرين: 3 أيام بالأسبوع (الاثنين / الأربعاء / الجمعة مثلاً)</div></div>
+
+    <!-- DAY 1 TRAIN -->
+    <h3>اليوم الأول – الاثنين (تمرين)</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بدائل</th><th>بديل خارج البيت</th></tr>
+      <tr>
+        <td class="meal-name">☀️ الفطار 12م</td>
+        <td>بطاطا حلوة مسلوقة + بيض مسلوق + موز + زبدة سودانية طبيعية</td>
+        <td>بطاطا حلوة 200جم + بيضة كاملة 1 + بياض بيضتين + موز 1 وسط + زبدة سودانية 1 م.ص</td>
+        <td class="kcal">490</td><td class="protein">22جم</td>
+        <td class="alt">بدل موز: تفاحة | بدل زبدة سودانية: 20جم لوز</td>
+        <td class="out-alt">بيض مسلوق + موز + مكسرات</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍎 السناك 3:30م</td>
+        <td>جبن قريش + خيار وطماطم</td>
+        <td>جبن قريش 200جم + خيار 1 + طماطم 1</td>
+        <td class="kcal">210</td><td class="protein">26جم</td>
+        <td class="alt">بدل جبن قريش: زبادي طبيعي قليل الدسم 200جم</td>
+        <td class="out-alt">زبادي طبيعي صغير (200جم)</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍗 الغداء 5:30م</td>
+        <td>فراخ مشوية + أرز بني + سلطة خضراء بزيت زيتون</td>
+        <td>فراخ 220جم + أرز بني مطبوخ 180جم + خضار متنوعة + زيت زيتون 1 م.ك</td>
+        <td class="kcal">750</td><td class="protein">52جم</td>
+        <td class="alt">بدل فراخ: لحم بقري قليل الدهن 200جم | بدل أرز بني: بطاطا مسلوقة 200جم</td>
+        <td class="out-alt">فراخ مشوية بدون جلد من أي مطعم + أرز + سلطة</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🐟 العشاء 7:30م</td>
+        <td>سمك مشوي (بلطي أو بوري) + بطاطا مسلوقة + خضار مشوية</td>
+        <td>سمك 220جم + بطاطا 100جم + كوسة + فلفل + زيت زيتون 1 م.ص</td>
+        <td class="kcal">530</td><td class="protein">42جم</td>
+        <td class="alt">بدل سمك: فراخ مسلوقة 200جم | بدل بطاطا: أرز بني مطبوخ 100جم</td>
+        <td class="out-alt">سمك فيليه مشوي من مطعم + سلطة</td>
+      </tr>
+      <tr style="background: rgba(245,166,35,0.05);">
+        <td colspan="2" style="font-weight:700;">📊 إجمالي اليوم</td>
+        <td></td><td class="kcal"><strong>2000</strong></td><td class="protein"><strong>142جم</strong></td><td colspan="2" class="alt">✅ كارب ~220جم | دهون ~62جم</td>
+      </tr>
+    </table></div>
+
+    <!-- DAY 2 TRAIN -->
+    <h3>اليوم الثالث – الأربعاء (تمرين)</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بدائل</th><th>بديل خارج البيت</th></tr>
+      <tr>
+        <td class="meal-name">☀️ الفطار 12م</td>
+        <td>عيش بلدي أسمر + جبن قريش + طماطم + خيار + زيتون</td>
+        <td>عيش بلدي أسمر 2 رغيف صغير + جبن قريش 150جم + طماطم + خيار + زيتون 5 حبات</td>
+        <td class="kcal">480</td><td class="protein">28جم</td>
+        <td class="alt">بدل عيش بلدي: بطاطا مسلوقة 150جم</td>
+        <td class="out-alt">ساندوتش جبن قريش خبز أسمر</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍌 السناك 3:30م</td>
+        <td>زبادي طبيعي + مكسرات + فراولة أو تفاح</td>
+        <td>زبادي 200جم + لوز 15 حبة (20جم) + تفاحة</td>
+        <td class="kcal">285</td><td class="protein">14جم</td>
+        <td class="alt">بدل مكسرات: زبدة سودانية 1م.ك</td>
+        <td class="out-alt">زبادي صغير + حفنة مكسرات</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥩 الغداء 5:30م</td>
+        <td>لحم بقري مشوي + أرز بني + سلطة بصلصة طماطم طبيعية</td>
+        <td>لحم 200جم + أرز بني مطبوخ 180جم + طماطم + بصل + زيت زيتون + توابل</td>
+        <td class="kcal">720</td><td class="protein">48جم</td>
+        <td class="alt">بدل أرز: بطاطا حلوة 200جم | بدل لحم: فراخ 220جم</td>
+        <td class="out-alt">شيش طاووق + أرز من مطعم</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍳 العشاء 7:30م</td>
+        <td>بيضتان مخفوقتان + صدر فراخ مسلوق + خبز أسمر + سلطة</td>
+        <td>بيض 1 كامل + بياض بيضتين + فراخ 120جم + بطاطا مسلوقة 80جم + طماطم + خيار</td>
+        <td class="kcal">510</td><td class="protein">50جم</td>
+        <td class="alt">بدل البيض: جبن قريش 100جم</td>
+        <td class="out-alt">ساندوتش فراخ مشوية خبز أسمر</td>
+      </tr>
+      <tr style="background: rgba(245,166,35,0.05);">
+        <td colspan="2" style="font-weight:700;">📊 إجمالي اليوم</td>
+        <td></td><td class="kcal"><strong>1995</strong></td><td class="protein"><strong>140جم</strong></td><td colspan="2" class="alt">✅ كارب ~215جم | دهون ~65جم</td>
+      </tr>
+    </table></div>
+
+    <!-- DAY 3 TRAIN -->
+    <h3>اليوم الخامس – الجمعة (تمرين)</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بدائل</th><th>بديل خارج البيت</th></tr>
+      <tr>
+        <td class="meal-name">☀️ الفطار 12م</td>
+        <td>بطاطا حلوة مسلوقة + بيضتان مخفوقتان + موز</td>
+        <td>بطاطا حلوة 180جم + بيضة كاملة 1 + بياض بيضتين + موز 1</td>
+        <td class="kcal">520</td><td class="protein">30جم</td>
+        <td class="alt">بدل البيض: جبن قريش 100جم</td>
+        <td class="out-alt">بطاطا مسلوقة + بيض مسلوق + موز</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥜 السناك 3:30م</td>
+        <td>جبن قريش + خوخ أو تفاحة</td>
+        <td>جبن قريش 180جم + فاكهة 1 حبة وسط</td>
+        <td class="kcal">200</td><td class="protein">22جم</td>
+        <td class="alt">بدل الفاكهة: جزر مسلوق 2 حبة</td>
+        <td class="out-alt">جبن قريش صغير</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍗 الغداء 5:30م</td>
+        <td>فراخ مسلوقة بالخضار + أرز بني + شوربة خضار طبيعية</td>
+        <td>فراخ 230جم + أرز بني مطبوخ 200جم + خضار في المرق</td>
+        <td class="kcal">760</td><td class="protein">54جم</td>
+        <td class="alt">بدل الشوربة: سلطة كبيرة</td>
+        <td class="out-alt">فراخ مسلوقة + أرز من مطعم</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥗 العشاء 7:30م</td>
+        <td>سلمون مشوي (أو تونا طبيعية) + بطاطا مسلوقة + بروكلي</td>
+        <td>سلمون/تونا طبيعية 180جم + بطاطا 120جم + بروكلي مسلوق + ليمون + زيت زيتون</td>
+        <td class="kcal">520</td><td class="protein">40جم</td>
+        <td class="alt">تونا طبيعية (علبة 180جم) بدل السلمون</td>
+        <td class="out-alt">تونا طبيعية + خبز أسمر</td>
+      </tr>
+      <tr style="background: rgba(245,166,35,0.05);">
+        <td colspan="2" style="font-weight:700;">📊 إجمالي اليوم</td>
+        <td></td><td class="kcal"><strong>2000</strong></td><td class="protein"><strong>146جم</strong></td><td colspan="2" class="alt">✅ كارب ~220جم | دهون ~60جم</td>
+      </tr>
+    </table></div>
+  </div>
+
+  <!-- REST VERSION -->
+  <div class="plan-version" id="ver-rest">
+    <div class="alert info"><span>😴</span><div>أيام الراحة: 4 أيام بالأسبوع (الثلاثاء / الخميس / السبت / الأحد) – الكارب أقل، البروتين ثابت</div></div>
+
+    <!-- DAY 1 REST -->
+    <h3>اليوم الثاني – الثلاثاء (راحة)</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بدائل</th><th>بديل خارج البيت</th></tr>
+      <tr>
+        <td class="meal-name">☀️ الفطار 12م</td>
+        <td>زبادي طبيعي + مكسرات + تفاحة</td>
+        <td>زبادي 250جم + لوز 20جم + تفاحة 1</td>
+        <td class="kcal">340</td><td class="protein">18جم</td>
+        <td class="alt">بدل التفاحة: كمثرى أو برتقال</td>
+        <td class="out-alt">زبادي + مكسرات + فاكهة</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍎 السناك 3:30م</td>
+        <td>جبن قريش + خيار + طماطم</td>
+        <td>جبن قريش 150جم + خضار طازجة</td>
+        <td class="kcal">165</td><td class="protein">20جم</td>
+        <td class="alt">زبادي طبيعي بدل جبن القريش</td>
+        <td class="out-alt">زبادي صغير طبيعي</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥩 الغداء 5:30م</td>
+        <td>فراخ مشوية + أرز بني (أقل) + سلطة كبيرة بزيت زيتون</td>
+        <td>فراخ 220جم + أرز بني مطبوخ 120جم + سلطة كبيرة + زيت زيتون 1 م.ك</td>
+        <td class="kcal">620</td><td class="protein">50جم</td>
+        <td class="alt">بدل أرز: بطاطا حلوة 120جم | بدل فراخ: لحم 200جم</td>
+        <td class="out-alt">فراخ مشوية + سلطة (بدون خبز)</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🐟 العشاء 7:30م</td>
+        <td>سمك مشوي + خضار مشوية (بدون نشويات)</td>
+        <td>سمك 220جم + كوسة + فلفل + باذنجان + زيت زيتون 1م.ص + ليمون</td>
+        <td class="kcal">390</td><td class="protein">42جم</td>
+        <td class="alt">تونا طبيعية 2 علبة + خضار</td>
+        <td class="out-alt">سمك مشوي + سلطة خضراء</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥛 إضافي اختياري</td>
+        <td>كوب حليب سادة أو كوباية زبادي اذا جعت</td>
+        <td>حليب 200مل أو زبادي 150جم</td>
+        <td class="kcal">180</td><td class="protein">8جم</td>
+        <td class="alt">—</td><td class="out-alt">—</td>
+      </tr>
+      <tr style="background: rgba(91,156,246,0.05);">
+        <td colspan="2" style="font-weight:700;">📊 إجمالي اليوم</td>
+        <td></td><td class="kcal"><strong>~1695</strong></td><td class="protein"><strong>138جم</strong></td><td colspan="2" class="alt">✅ كارب ~150جم | دهون ~58جم</td>
+      </tr>
+    </table></div>
+
+    <!-- DAY 2 REST -->
+    <h3>اليوم الرابع – الخميس (راحة)</h3>
+    <div class="tbl-wrap"><table>
+      <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بدائل</th><th>بديل خارج البيت</th></tr>
+      <tr>
+        <td class="meal-name">☀️ الفطار 12م</td>
+        <td>بيض مخفوق (2 بيضة) + خضار + جبن قريش + عيش بلدي أسمر (1 رغيف صغير)</td>
+        <td>بيض 1 كامل + بياض بيضتين + فلفل + بصل + طماطم + جبن قريش 100جم + عيش بلدي 1 رغيف</td>
+        <td class="kcal">370</td><td class="protein">30جم</td>
+        <td class="alt">بدل بيض: فراخ مسلوقة 100جم</td>
+        <td class="out-alt">بيض مسلوق + عيش بلدي أسمر</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍊 السناك 3:30م</td>
+        <td>فاكهة موسمية + لوز</td>
+        <td>برتقالة كبيرة أو 2 مندرين + لوز 15جم</td>
+        <td class="kcal">190</td><td class="protein">5جم</td>
+        <td class="alt">تفاحة + جوز 4 حبات</td>
+        <td class="out-alt">فاكهة + مكسرات</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🍗 الغداء 5:30م</td>
+        <td>فراخ مسلوقة بالخضار + شوربة + خبز أسمر 1</td>
+        <td>فراخ 230جم + خضار في مرق + خبز أسمر 1 رغيف صغير</td>
+        <td class="kcal">540</td><td class="protein">50جم</td>
+        <td class="alt">بدل خبز: بطاطا مسلوقة 100جم</td>
+        <td class="out-alt">شوربة فراخ من مطعم + خبز</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥗 العشاء 7:30م</td>
+        <td>تونا طبيعية + سلطة كبيرة + زيت زيتون + ليمون</td>
+        <td>تونا طبيعية 180جم + خس + طماطم + خيار + فلفل + زيتون 5 حبات + زيت 1م.ص</td>
+        <td class="kcal">330</td><td class="protein">36جم</td>
+        <td class="alt">سمك مسلوق بدل التونا</td>
+        <td class="out-alt">سلطة تونا من كافيه</td>
+      </tr>
+      <tr>
+        <td class="meal-name">🥛 إضافي اختياري</td>
+        <td>زبادي طبيعي</td>
+        <td>200جم</td>
+        <td class="kcal">120</td><td class="protein">8جم</td>
+        <td class="alt">—</td><td class="out-alt">—</td>
+      </tr>
+      <tr style="background: rgba(91,156,246,0.05);">
+        <td colspan="2" style="font-weight:700;">📊 إجمالي اليوم</td>
+        <td></td><td class="kcal"><strong>~1550</strong></td><td class="protein"><strong>129جم</strong></td><td colspan="2" class="alt">✅ كارب ~140جم | دهون ~55جم</td>
+      </tr>
+    </table></div>
+
+    <div class="alert warning"><span>💡</span><div>في أيام الراحة لو شعرت بجوع شديد بعد 8م: كوب حليب ساخن (200مل) مقبول ولا يخرجك من النافذة بشكل مؤثر.</div></div>
+  </div>
+
+  <div class="note">* الأيام المتبقية في الأسبوع (اليوم السادس السبت واليوم السابع الأحد) نفس المنطق – تناوب نفس الخيارات. المهم الأرقام الإجمالية وليس التكرار الحرفي.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 3B: FULL 21-WEEK PLAN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>📅</span> النظام الغذائي الكامل – 21 أسبوع حتى 100 كجم
+    <span class="badge green">4 مراحل</span>
+  </div>
+
+  <div class="alert info">
+    <span>📌</span>
+    <div>كل مرحلة بتبدأ لما تنزل ~5 كجم – السعرات بتنزل تدريجياً مع الوزن عشان تفضل في عجز كافي. البروتين ثابت دايماً لحماية العضلات.</div>
+  </div>
+
+  <div class="alert danger" style="margin-bottom:16px;">
+    <span>🔬</span>
+    <div>
+      <strong>تحديثات بناءً على تحاليل 16 أبريل 2026:</strong>
+      <div style="font-size:0.8rem; margin-top:6px; line-height:2.1;">
+        ✅ HOMA-IR تحسّن من 4.1 → <strong>2.6</strong> — جسمك بيستجاوب كويس جداً<br>
+        ⚠️ LDL ارتفع من 113 → <strong>146</strong> — التعديلات التالية ضرورية:<br>
+        🥚 البيض: <strong>بيضة كاملة 1 + بياض 2</strong> بدل بيضتين كاملتين<br>
+        🥩 اللحم البقري: <strong>مرة واحدة فقط</strong> أسبوعياً<br>
+        🐟 السمك الدهني: <strong>3 مرات</strong> أسبوعياً (سلمون/ماكريل/سردين)<br>
+        🥑 أفوكادو: <strong>نص حبة يومياً</strong> في السلطة — يخفض LDL مباشرة
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase overview cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap: 12px; margin-bottom: 22px;">
+    <div style="background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:14px; cursor:pointer;" onclick="showPhase('p1')">
+      <div style="font-size:0.75rem; color:var(--muted);">أسابيع 1 – 5</div>
+      <div style="font-weight:900; color:var(--accent); font-size:1.05rem;">المرحلة 1</div>
+      <div style="font-size:0.8rem; margin-top:4px;">121 ← 116 كجم</div>
+      <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">تمرين: 2000 | راحة: 1700</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--blue); border-radius:10px; padding:14px; cursor:pointer;" onclick="showPhase('p2')">
+      <div style="font-size:0.75rem; color:var(--muted);">أسابيع 6 – 10</div>
+      <div style="font-weight:900; color:var(--blue); font-size:1.05rem;">المرحلة 2</div>
+      <div style="font-size:0.8rem; margin-top:4px;">116 ← 111 كجم</div>
+      <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">تمرين: 1950 | راحة: 1650</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--purple); border-radius:10px; padding:14px; cursor:pointer;" onclick="showPhase('p3')">
+      <div style="font-size:0.75rem; color:var(--muted);">أسابيع 11 – 15</div>
+      <div style="font-weight:900; color:var(--purple); font-size:1.05rem;">المرحلة 3</div>
+      <div style="font-size:0.8rem; margin-top:4px;">111 ← 106 كجم</div>
+      <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">تمرين: 1900 | راحة: 1600</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--green); border-radius:10px; padding:14px; cursor:pointer;" onclick="showPhase('p4')">
+      <div style="font-size:0.75rem; color:var(--muted);">أسابيع 16 – 21</div>
+      <div style="font-weight:900; color:var(--green); font-size:1.05rem;">المرحلة 4</div>
+      <div style="font-size:0.8rem; margin-top:4px;">106 ← 100 كجم 🎯</div>
+      <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">تمرين: 1850 | راحة: 1550</div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 1 ── -->
+  <div class="plan-phase visible" id="phase-p1">
+    <div style="background:rgba(245,166,35,0.08); border:1px solid var(--accent); border-radius:10px; padding:14px; margin-bottom:18px;">
+      <div style="font-weight:900; color:var(--accent); font-size:1rem; margin-bottom:8px;">🟠 المرحلة الأولى — أسابيع 1-5 (121 ← 116 كجم)</div>
+      <div style="display:flex; flex-wrap:wrap; gap:16px; font-size:0.85rem;">
+        <span>🏋️ تمرين: <strong style="color:var(--accent)">2000 kcal</strong></span>
+        <span>😴 راحة: <strong style="color:var(--blue)">1700 kcal</strong></span>
+        <span>🥩 بروتين: <strong style="color:var(--green)">135 جم</strong></span>
+        <span>🌾 كارب تمرين: <strong>215 جم</strong></span>
+        <span>🌾 كارب راحة: <strong>155 جم</strong></span>
+        <span>🥑 دهون: <strong>65 جم</strong></span>
+      </div>
+    </div>
+    <div class="version-toggle">
+      <button class="ver-btn active" onclick="showSubVer(this,'p1','train')">🏋️ أيام التمرين</button>
+      <button class="ver-btn" onclick="showSubVer(this,'p1','rest')">😴 أيام الراحة</button>
+    </div>
+    <!-- P1 TRAIN -->
+    <div class="sub-ver visible" id="p1-train">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بطاطا حلوة مسلوقة + بيض مخفوق + موز</td><td>بطاطا حلوة 200جم + بيض 2 + موز 1</td><td class="kcal">490</td><td class="protein">22جم</td><td class="out-alt">بيض مسلوق + موز</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>جبن قريش + خيار + طماطم</td><td>جبن قريش 200جم + خضار</td><td class="kcal">210</td><td class="protein">26جم</td><td class="out-alt">زبادي طبيعي 200جم</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ مشوية + أرز بني + سلطة بزيت زيتون</td><td>فراخ 220جم + أرز بني مطبوخ 180جم + سلطة + زيت زيتون 1م.ك</td><td class="kcal">750</td><td class="protein">52جم</td><td class="out-alt">فراخ مشوية + أرز من مطعم</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>سمك مشوي + بطاطا مسلوقة + خضار مشوية</td><td>سمك 220جم + بطاطا 100جم + كوسة وفلفل + زيت زيتون 1م.ص</td><td class="kcal">540</td><td class="protein">42جم</td><td class="out-alt">تونا طبيعية + سلطة</td></tr>
+        <tr style="background:rgba(245,166,35,0.05)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>1990</strong></td><td class="protein"><strong>142جم</strong></td><td class="alt">كارب ~215جم | دهون ~62جم</td></tr>
+      </table></div>
+    </div>
+    <!-- P1 REST -->
+    <div class="sub-ver" id="p1-rest">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>زبادي طبيعي + مكسرات + تفاحة</td><td>زبادي 250جم + لوز 20جم + تفاحة</td><td class="kcal">340</td><td class="protein">18جم</td><td class="out-alt">زبادي + مكسرات</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>جبن قريش + خيار + طماطم</td><td>جبن قريش 150جم + خضار</td><td class="kcal">165</td><td class="protein">20جم</td><td class="out-alt">زبادي صغير</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ مشوية + أرز بني (أقل) + سلطة كبيرة</td><td>فراخ 220جم + أرز بني مطبوخ 120جم + سلطة كبيرة + زيت زيتون</td><td class="kcal">620</td><td class="protein">50جم</td><td class="out-alt">فراخ مشوية + سلطة بدون خبز</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>سمك مشوي + خضار مشوية بدون نشويات</td><td>سمك 220جم + كوسة + فلفل + باذنجان + زيت زيتون 1م.ص</td><td class="kcal">380</td><td class="protein">42جم</td><td class="out-alt">سمك مشوي + سلطة</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>حليب ساخن لو جعت</td><td>200مل</td><td class="kcal">100</td><td class="protein">7جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(91,156,246,0.05)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>~1605</strong></td><td class="protein"><strong>137جم</strong></td><td class="alt">كارب ~150جم | دهون ~58جم</td></tr>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 2 ── -->
+  <div class="plan-phase" id="phase-p2">
+    <div style="background:rgba(91,156,246,0.08); border:1px solid var(--blue); border-radius:10px; padding:14px; margin-bottom:18px;">
+      <div style="font-weight:900; color:var(--blue); font-size:1rem; margin-bottom:8px;">🔵 المرحلة الثانية — أسابيع 6-10 (116 ← 111 كجم)</div>
+      <div style="display:flex; flex-wrap:wrap; gap:16px; font-size:0.85rem;">
+        <span>🏋️ تمرين: <strong style="color:var(--accent)">1950 kcal</strong></span>
+        <span>😴 راحة: <strong style="color:var(--blue)">1650 kcal</strong></span>
+        <span>🥩 بروتين: <strong style="color:var(--green)">135 جم</strong></span>
+        <span>🌾 كارب تمرين: <strong>200 جم</strong></span>
+        <span>🌾 كارب راحة: <strong>140 جم</strong></span>
+        <span>🥑 دهون: <strong>63 جم</strong></span>
+      </div>
+    </div>
+    <div class="alert warning" style="margin-bottom:14px;"><span>💡</span><div>نفس الأكل بالظبط – بس <strong>الكميات بتنزل قليلاً</strong>. الفرق الرئيسي: أرز بني ينزل من 180جم ← 150جم، فراخ من 220جم ← 200جم، بطاطا من 200جم ← 160جم.</div></div>
+    <div class="version-toggle">
+      <button class="ver-btn active" onclick="showSubVer(this,'p2','train')">🏋️ أيام التمرين</button>
+      <button class="ver-btn" onclick="showSubVer(this,'p2','rest')">😴 أيام الراحة</button>
+    </div>
+    <!-- P2 TRAIN -->
+    <div class="sub-ver visible" id="p2-train">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بطاطا حلوة مسلوقة + بيض + موز</td><td>بطاطا حلوة 160جم + بيض 2 + موز 1</td><td class="kcal">445</td><td class="protein">22جم</td><td class="out-alt">بيض مسلوق + موز</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>جبن قريش + فاكهة</td><td>جبن قريش 180جم + تفاحة</td><td class="kcal">200</td><td class="protein">24جم</td><td class="out-alt">زبادي طبيعي</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ مشوية + أرز بني + سلطة</td><td>فراخ 200جم + أرز بني مطبوخ 150جم + سلطة + زيت زيتون 1م.ص</td><td class="kcal">690</td><td class="protein">48جم</td><td class="out-alt">فراخ مشوية + أرز</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>سمك أو تونا + خضار مشوية + بطاطا صغيرة</td><td>سمك/تونا 200جم + بطاطا 80جم + خضار + زيت زيتون 1م.ص</td><td class="kcal">490</td><td class="protein">40جم</td><td class="out-alt">تونا + سلطة</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>زبادي طبيعي</td><td>150جم</td><td class="kcal">90</td><td class="protein">8جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(245,166,35,0.05)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>1915</strong></td><td class="protein"><strong>142جم</strong></td><td class="alt">كارب ~198جم | دهون ~60جم</td></tr>
+      </table></div>
+    </div>
+    <!-- P2 REST -->
+    <div class="sub-ver" id="p2-rest">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بيضة كاملة + بياض بيضتين مخفوق + خضار + جبن قريش</td><td>بيضة كاملة 1 + بياض بيضتين + فلفل + طماطم + جبن قريش 100جم</td><td class="kcal">280</td><td class="protein">28جم</td><td class="out-alt">بيض مسلوق + خضار</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>فاكهة + مكسرات</td><td>تفاحة + لوز 15جم</td><td class="kcal">180</td><td class="protein">4جم</td><td class="out-alt">فاكهة</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ مسلوقة + أرز بني أقل + سلطة كبيرة</td><td>فراخ 200جم + أرز بني مطبوخ 100جم + سلطة كبيرة</td><td class="kcal">570</td><td class="protein">46جم</td><td class="out-alt">فراخ + سلطة بدون كارب</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>تونا طبيعية + سلطة كبيرة + زيت زيتون</td><td>تونا 180جم + خضار متنوعة + زيت زيتون 1م.ص</td><td class="kcal">330</td><td class="protein">36جم</td><td class="out-alt">تونا + سلطة</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>زبادي طبيعي</td><td>150جم</td><td class="kcal">90</td><td class="protein">8جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(91,156,246,0.05)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>~1490</strong></td><td class="protein"><strong>122جم</strong></td><td class="alt">كارب ~135جم | دهون ~54جم</td></tr>
+      </table></div>
+      <div class="alert warning"><span>⚠️</span><div>في المرحلة دي لو حسيت بإرهاق أو دوخة زود الكمية شوية – الجسم بدأ يتأقلم وهيبقى أسهل من الأسبوع الثاني.</div></div>
+    </div>
+    <!-- Refeed day -->
+    <div style="background:rgba(176,132,245,0.08); border:1px solid var(--purple); border-radius:10px; padding:14px; margin-top:16px;">
+      <div style="font-weight:700; color:var(--purple); margin-bottom:8px;">🔄 يوم Refeed — مرة كل أسبوعين (من المرحلة 2 فصاعداً)</div>
+      <div style="font-size:0.85rem; color:var(--muted); line-height:1.9;">
+        لو الوزن وقف أسبوعين: يوم واحد بس ارفع السعرات لـ <strong style="color:var(--purple)">2200 kcal</strong> — زود الكارب فقط (أرز + بطاطا + فاكهة أكتر). البروتين ثابت. مش يوم غش، يوم إعادة تشغيل هرموني.<br>
+        <strong>النتيجة:</strong> الجسم بيرفع الليبتين وبيعيد تفعيل الحرق في الأسبوع اللي بعده.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 3 ── -->
+  <div class="plan-phase" id="phase-p3">
+    <div style="background:rgba(176,132,245,0.08); border:1px solid var(--purple); border-radius:10px; padding:14px; margin-bottom:18px;">
+      <div style="font-weight:900; color:var(--purple); font-size:1rem; margin-bottom:8px;">🟣 المرحلة الثالثة — أسابيع 11-15 (111 ← 106 كجم)</div>
+      <div style="display:flex; flex-wrap:wrap; gap:16px; font-size:0.85rem;">
+        <span>🏋️ تمرين: <strong style="color:var(--accent)">1900 kcal</strong></span>
+        <span>😴 راحة: <strong style="color:var(--blue)">1600 kcal</strong></span>
+        <span>🥩 بروتين: <strong style="color:var(--green)">135 جم</strong></span>
+        <span>🌾 كارب تمرين: <strong>185 جم</strong></span>
+        <span>🌾 كارب راحة: <strong>125 جم</strong></span>
+        <span>🥑 دهون: <strong>60 جم</strong></span>
+      </div>
+    </div>
+    <div class="alert info" style="margin-bottom:14px;"><span>💪</span><div>في المرحلة دي جسمك بقى أكفأ في حرق الدهون. هتلاحظ إن الجوع أقل من الأول. التمارين بتبقى أسهل لأن الوزن نزل.</div></div>
+    <div class="version-toggle">
+      <button class="ver-btn active" onclick="showSubVer(this,'p3','train')">🏋️ أيام التمرين</button>
+      <button class="ver-btn" onclick="showSubVer(this,'p3','rest')">😴 أيام الراحة</button>
+    </div>
+    <!-- P3 TRAIN -->
+    <div class="sub-ver visible" id="p3-train">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بيضة كاملة + بياض بيضة مخفوق + عيش بلدي + طماطم وخيار</td><td>بيضة كاملة 1 + بياض بيضة + عيش بلدي 1 رغيف + خضار طازجة</td><td class="kcal">330</td><td class="protein">20جم</td><td class="out-alt">بيض + عيش بلدي</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>جبن قريش + فاكهة</td><td>جبن قريش 150جم + موز صغير</td><td class="kcal">185</td><td class="protein">20جم</td><td class="out-alt">زبادي طبيعي</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>لحم بقري / فراخ مشوية + أرز بني + سلطة</td><td>لحم/فراخ 200جم + أرز بني مطبوخ 130جم + سلطة كبيرة</td><td class="kcal">660</td><td class="protein">50جم</td><td class="out-alt">فراخ مشوية + أرز</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>سمك مشوي + خضار مشوية</td><td>سمك 200جم + بروكلي + كوسة + زيت زيتون 1م.ص</td><td class="kcal">430</td><td class="protein">38جم</td><td class="out-alt">تونا + سلطة</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>زبادي طبيعي</td><td>150جم</td><td class="kcal">90</td><td class="protein">8جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(245,166,35,0.05)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>1745</strong></td><td class="protein"><strong>138جم</strong></td><td class="alt">كارب ~183جم | دهون ~57جم</td></tr>
+      </table></div>
+      <div class="note">* الفرق عن المرحلة 2: الكميات أقل بـ10-15% والكارب انخفض. لو حسيت بضعف في التمرين زود الأرز 20جم فقط.</div>
+    </div>
+    <!-- P3 REST -->
+    <div class="sub-ver" id="p3-rest">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بيضة كاملة + بياض بيضة مسلوق + جبن قريش + خيار وطماطم</td><td>بيضة كاملة 1 + بياض بيضة + جبن قريش 120جم + خضار طازجة</td><td class="kcal">260</td><td class="protein">28جم</td><td class="out-alt">بيض مسلوق + خضار</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>فاكهة صغيرة + جوز</td><td>تفاحة صغيرة + جوز 3 حبات (15جم)</td><td class="kcal">160</td><td class="protein">3جم</td><td class="out-alt">فاكهة</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ مسلوقة + بطاطا حلوة + سلطة</td><td>فراخ 200جم + بطاطا حلوة 100جم + سلطة كبيرة</td><td class="kcal">530</td><td class="protein">46جم</td><td class="out-alt">فراخ + خضار بدون كارب</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>تونا طبيعية + سلطة ضخمة + زيت زيتون</td><td>تونا 160جم + خضار متنوعة + زيت زيتون 1م.ص + ليمون</td><td class="kcal">300</td><td class="protein">34جم</td><td class="out-alt">تونا + سلطة</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>زبادي طبيعي</td><td>100جم</td><td class="kcal">60</td><td class="protein">5جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(91,156,246,0.05)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>~1360</strong></td><td class="protein"><strong>118جم</strong></td><td class="alt">كارب ~120جم | دهون ~48جم</td></tr>
+      </table></div>
+      <div class="alert danger"><span>⚠️</span><div>لو البروتين نزل عن 120جم في أيام الراحة: أضف جبن قريش إضافي 100جم أو تونا 100جم — حماية العضلات أهم من العجز السعري الزيادة.</div></div>
+    </div>
+  </div>
+
+  <!-- ── PHASE 4 ── -->
+  <div class="plan-phase" id="phase-p4">
+    <div style="background:rgba(86,197,150,0.08); border:1px solid var(--green); border-radius:10px; padding:14px; margin-bottom:18px;">
+      <div style="font-weight:900; color:var(--green); font-size:1rem; margin-bottom:8px;">🟢 المرحلة الرابعة — أسابيع 16-21 (106 ← 100 كجم 🎯)</div>
+      <div style="display:flex; flex-wrap:wrap; gap:16px; font-size:0.85rem;">
+        <span>🏋️ تمرين: <strong style="color:var(--accent)">1850 kcal</strong></span>
+        <span>😴 راحة: <strong style="color:var(--blue)">1550 kcal</strong></span>
+        <span>🥩 بروتين: <strong style="color:var(--green)">135 جم</strong></span>
+        <span>🌾 كارب تمرين: <strong>170 جم</strong></span>
+        <span>🌾 كارب راحة: <strong>110 جم</strong></span>
+        <span>🥑 دهون: <strong>58 جم</strong></span>
+      </div>
+    </div>
+    <div class="alert success" style="margin-bottom:14px;"><span>🏆</span><div>المرحلة الأخيرة! جسمك وصل لـ 106 كجم يعني خسرت 15 كجم بالفعل. الكارب انخفض أكتر — التركيز دلوقتي على الـ <strong>Lean Protein + Vegetables</strong>. المرحلة دي هتحس فيها بفرق واضح في الشكل.</div></div>
+    <div class="version-toggle">
+      <button class="ver-btn active" onclick="showSubVer(this,'p4','train')">🏋️ أيام التمرين</button>
+      <button class="ver-btn" onclick="showSubVer(this,'p4','rest')">😴 أيام الراحة</button>
+    </div>
+    <!-- P4 TRAIN -->
+    <div class="sub-ver visible" id="p4-train">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بيضة كاملة + بياض بيضة مسلوق + جبن قريش + خضار + عيش بلدي نص</td><td>بيضة كاملة 1 + بياض بيضة + جبن قريش 100جم + خضار طازجة + عيش بلدي نص رغيف</td><td class="kcal">300</td><td class="protein">24جم</td><td class="out-alt">بيض + جبن قريش</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>زبادي طبيعي + فاكهة صغيرة</td><td>زبادي 180جم + تفاحة صغيرة</td><td class="kcal">185</td><td class="protein">14جم</td><td class="out-alt">زبادي طبيعي</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ أو سمك مشوي + بطاطا حلوة + خضار</td><td>فراخ/سمك 210جم + بطاطا حلوة 110جم + سلطة كبيرة</td><td class="kcal">620</td><td class="protein">50جم</td><td class="out-alt">فراخ مشوية + بطاطا</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>تونا طبيعية أو سمك مسلوق + خضار مسلوقة</td><td>تونا/سمك 180جم + بروكلي + جزر مسلوق + ليمون</td><td class="kcal">330</td><td class="protein">36جم</td><td class="out-alt">تونا + خضار</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>جبن قريش بسيط</td><td>100جم</td><td class="kcal">110</td><td class="protein">14جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(86,197,150,0.08)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>1605</strong></td><td class="protein"><strong>142جم</strong></td><td class="alt">كارب ~168جم | دهون ~55جم</td></tr>
+      </table></div>
+    </div>
+    <!-- P4 REST -->
+    <div class="sub-ver" id="p4-rest">
+      <div class="tbl-wrap"><table>
+        <tr><th>الوجبة</th><th>المحتوى</th><th>الكمية</th><th class="kcal">kcal</th><th class="protein">بروتين</th><th>بديل سريع</th></tr>
+        <tr><td class="meal-name">☀️ فطار 12م</td><td>بيضة كاملة + بياض بيضة مسلوق + جبن قريش + خيار وطماطم</td><td>بيضة كاملة 1 + بياض بيضة + جبن قريش 100جم + خضار طازجة</td><td class="kcal">240</td><td class="protein">24جم</td><td class="out-alt">بيض + خضار</td></tr>
+        <tr><td class="meal-name">🍎 سناك 3:30م</td><td>خضار طازجة + لوز</td><td>خيار + جزر + فلفل + لوز 10جم</td><td class="kcal">110</td><td class="protein">4جم</td><td class="out-alt">خضار طازجة</td></tr>
+        <tr><td class="meal-name">🍗 غداء 5:30م</td><td>فراخ مسلوقة + شوربة خضار + سلطة</td><td>فراخ 200جم + شوربة خضار طبيعية + سلطة كبيرة</td><td class="kcal">480</td><td class="protein">46جم</td><td class="out-alt">فراخ + خضار بدون كارب</td></tr>
+        <tr><td class="meal-name">🐟 عشاء 7:30م</td><td>سلمون أو تونا + سلطة ضخمة</td><td>سلمون/تونا 160جم + خضار متنوعة + زيت زيتون 1م.ص</td><td class="kcal">310</td><td class="protein">34جم</td><td class="out-alt">تونا + سلطة</td></tr>
+        <tr><td class="meal-name">🥛 إضافي اختياري</td><td>جبن قريش لو جعت</td><td>100جم</td><td class="kcal">110</td><td class="protein">14جم</td><td class="out-alt">—</td></tr>
+        <tr style="background:rgba(86,197,150,0.08)"><td colspan="2"><strong>📊 الإجمالي</strong></td><td></td><td class="kcal"><strong>~1300</strong></td><td class="protein"><strong>126جم</strong></td><td class="alt">كارب ~105جم | دهون ~46جم</td></tr>
+      </table></div>
+      <div class="alert success"><span>🎯</span><div>في المرحلة دي أيام الراحة بتكون شبه <strong>Protein + Vegetables</strong> فقط — ده بيسرّع حرق الدهون الأخيرة بشكل كبير جداً.</div></div>
+    </div>
+
+    <!-- Refeed in phase 4 -->
+    <div style="background:rgba(176,132,245,0.08); border:1px solid var(--purple); border-radius:10px; padding:14px; margin-top:16px;">
+      <div style="font-weight:700; color:var(--purple); margin-bottom:8px;">🔄 Refeed في المرحلة 4 — مرة كل أسبوع</div>
+      <div style="font-size:0.85rem; color:var(--muted); line-height:1.9;">
+        في المرحلة دي الجسم بيتعرض لعجز كبير — Refeed أسبوعياً بقى ضروري مش اختياري.<br>
+        <strong>يوم الـ Refeed:</strong> ارفع لـ <strong style="color:var(--purple)">2100 kcal</strong> — الزيادة كلها في الكارب (أرز + بطاطا حلوة + فاكهة). البروتين والدهون ثابتين.
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary comparison table -->
+  <h3 style="margin-top:24px;">📊 مقارنة المراحل الأربعة</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>المرحلة</th><th>الأسابيع</th><th>الوزن</th><th class="kcal">تمرين</th><th class="kcal">راحة</th><th class="protein">بروتين</th><th>كارب تمرين</th><th>كارب راحة</th></tr>
+    <tr><td style="color:var(--accent)"><strong>1</strong></td><td>1-5</td><td>121←116</td><td class="kcal">2000</td><td class="kcal">1700</td><td class="protein">135جم</td><td>215جم</td><td>155جم</td></tr>
+    <tr><td style="color:var(--blue)"><strong>2</strong></td><td>6-10</td><td>116←111</td><td class="kcal">1950</td><td class="kcal">1650</td><td class="protein">135جم</td><td>200جم</td><td>140جم</td></tr>
+    <tr><td style="color:var(--purple)"><strong>3</strong></td><td>11-15</td><td>111←106</td><td class="kcal">1900</td><td class="kcal">1600</td><td class="protein">135جم</td><td>185جم</td><td>125جم</td></tr>
+    <tr><td style="color:var(--green)"><strong>4 🎯</strong></td><td>16-21</td><td>106←100</td><td class="kcal">1850</td><td class="kcal">1550</td><td class="protein">135جم</td><td>170جم</td><td>110جم</td></tr>
+  </table></div>
+  <div class="note">* البروتين ثابت في كل المراحل — هو العمود الفقري للخطة. الكارب هو الوحيد اللي بينزل تدريجياً. الدهون تنزل بشكل طفيف فقط لأنها مهمة للهرمونات.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 3C: DELICIOUS MEALS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🔥</span> قائمة الوجبات اللذيذة — أكل بطعم مش نظام
+    <span class="badge" style="background:var(--red); color:#fff;">دلع منظم</span>
+  </div>
+
+  <div class="alert success">
+    <span>✅</span>
+    <div>كل الوجبات دي <strong>داخلة في السعرات</strong> — مش غش، مجرد طبخ أذكى وأطعم. استبدل بيها أي وجبة غداء أو عشاء في الخطة بدون قلق.</div>
+  </div>
+
+  <!-- ── RECIPE CARDS ── -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 18px; margin-top: 4px;">
+
+    <!-- SHREDDED BEEF SHAWARMA -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,rgba(245,166,35,0.25),rgba(255,107,107,0.15)); padding:16px 18px 12px;">
+        <div style="font-size:1.3rem;">🌯</div>
+        <div style="font-weight:900; font-size:1rem; color:var(--accent); margin-top:4px;">شاورما اللحم المفتت</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Shredded Beef Shawarma — بدون دهون زيادة</div>
+        <div style="display:flex; gap:12px; margin-top:10px; font-size:0.78rem;">
+          <span style="color:var(--accent)">🔥 520 kcal</span>
+          <span style="color:var(--green)">💪 48جم بروتين</span>
+          <span style="color:var(--blue)">🌾 35جم كارب</span>
+        </div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin-bottom:8px;">🥩 المقادير (1 شخص)</div>
+        <div style="font-size:0.82rem; line-height:2; color:var(--muted);">
+          • لحم بقري قليل الدهن (تقيل): <strong style="color:var(--text)">250جم</strong><br>
+          • بصلة وسط مقطعة<br>
+          • ثوم 3 فصوص<br>
+          • كمون + كركم + فلفل أسود + ملح + بابريكا<br>
+          • ليمون: عصير 1 حبة<br>
+          • زيت زيتون: <strong style="color:var(--text)">1 م.ص فقط</strong><br>
+          • عيش بلدي أسمر: 1 رغيف
+        </div>
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin:10px 0 6px;">👨‍🍳 الطريقة</div>
+        <div style="font-size:0.82rem; line-height:1.9; color:var(--muted);">
+          1. حط اللحم كامل في طنجرة ضغط مع بصل + ثوم + توابل + ماء يغطيه.<br>
+          2. اطبخه على ضغط <strong style="color:var(--text)">45-60 دقيقة</strong> لحد ما يبقى طري جداً.<br>
+          3. شيل اللحم وافتته بشوكتين — هيتفتت لوحده.<br>
+          4. حطه في طاسة على نار عالية مع م.ص زيت زيتون + التوابل 3-4 دقايق لحد ما يتحمر.<br>
+          5. قدّمه في عيش بلدي + طحينة خفيفة (م.ص) + خيار + طماطم + بقدونس.
+        </div>
+        <div style="background:rgba(245,166,35,0.08); border-radius:8px; padding:8px 10px; margin-top:10px; font-size:0.78rem; color:var(--accent);">
+          💡 حضّره كتير وحطه في الفريزر — يكفي أسبوع كامل، بس افتت وسخّن.
+        </div>
+      </div>
+    </div>
+
+    <!-- CHICKEN SHAWARMA -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,rgba(78,205,196,0.2),rgba(86,197,150,0.15)); padding:16px 18px 12px;">
+        <div style="font-size:1.3rem;">🫓</div>
+        <div style="font-weight:900; font-size:1rem; color:var(--accent2); margin-top:4px;">شاورما الفراخ البيتية</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Chicken Shawarma — ماريناد أصلي</div>
+        <div style="display:flex; gap:12px; margin-top:10px; font-size:0.78rem;">
+          <span style="color:var(--accent)">🔥 490 kcal</span>
+          <span style="color:var(--green)">💪 52جم بروتين</span>
+          <span style="color:var(--blue)">🌾 30جم كارب</span>
+        </div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin-bottom:8px;">🥩 المقادير (1 شخص)</div>
+        <div style="font-size:0.82rem; line-height:2; color:var(--muted);">
+          • صدر فراخ: <strong style="color:var(--text)">220جم</strong><br>
+          • زبادي طبيعي: <strong style="color:var(--text)">3 م.ك (ماريناد)</strong><br>
+          • ليمون: عصير 1 حبة<br>
+          • ثوم 2 فص مبشور<br>
+          • كمون + كركم + قرفة + فلفل أحمر + ملح<br>
+          • زيت زيتون: <strong style="color:var(--text)">1 م.ص</strong><br>
+          • عيش بلدي أسمر: 1 رغيف
+        </div>
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin:10px 0 6px;">👨‍🍳 الطريقة</div>
+        <div style="font-size:0.82rem; line-height:1.9; color:var(--muted);">
+          1. اخلط الزبادي + ليمون + ثوم + توابل مع بعض — ده الماريناد.<br>
+          2. حط الفراخ فيه <strong style="color:var(--text)">لو عندك وقت: 2-4 ساعات أو من الليل</strong>.<br>
+          3. اشويها في الفرن على <strong style="color:var(--text)">200 درجة 20-25 دقيقة</strong> أو على الجريل.<br>
+          4. قطّعها شرايح رفيعة وقدّمها في عيش بلدي + طحينة (م.ص) + خيار + بصل أحمر.
+        </div>
+        <div style="background:rgba(78,205,196,0.08); border-radius:8px; padding:8px 10px; margin-top:10px; font-size:0.78rem; color:var(--accent2);">
+          💡 الماريناد بالزبادي هو سر الطراوة — متشيلوش مهما زهقت.
+        </div>
+      </div>
+    </div>
+
+    <!-- KOFTA -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,rgba(176,132,245,0.2),rgba(91,156,246,0.1)); padding:16px 18px 12px;">
+        <div style="font-size:1.3rem;">🥩</div>
+        <div style="font-weight:900; font-size:1rem; color:var(--purple); margin-top:4px;">كفتة مشوية بالفرن</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Grilled Kofta — بدون قلي</div>
+        <div style="display:flex; gap:12px; margin-top:10px; font-size:0.78rem;">
+          <span style="color:var(--accent)">🔥 510 kcal</span>
+          <span style="color:var(--green)">💪 46جم بروتين</span>
+          <span style="color:var(--blue)">🌾 28جم كارب</span>
+        </div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin-bottom:8px;">🥩 المقادير (1 شخص)</div>
+        <div style="font-size:0.82rem; line-height:2; color:var(--muted);">
+          • لحم بقري مفروم قليل الدهن: <strong style="color:var(--text)">200جم</strong><br>
+          • بصلة صغيرة مبشورة<br>
+          • بقدونس + كزبرة طازجة (مفروم ناعم)<br>
+          • كمون + فلفل أسود + ملح + بابريكا<br>
+          • بيضة 1 (رابط)<br>
+          • عيش بلدي أسمر: 1 رغيف + سلطة
+        </div>
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin:10px 0 6px;">👨‍🍳 الطريقة</div>
+        <div style="font-size:0.82rem; line-height:1.9; color:var(--muted);">
+          1. اخلط اللحم + البصل + البقدونس + التوابل + البيضة عجينة متجانسة.<br>
+          2. شكّل أصابع كفتة على صينية فرن بورق زبدة (بدون زيت).<br>
+          3. اشويها في الفرن <strong style="color:var(--text)">200 درجة لمدة 20 دقيقة</strong> واقلبها في النص.<br>
+          4. قدّمها مع طحينة (م.ص) + سلطة + عيش بلدي.
+        </div>
+        <div style="background:rgba(176,132,245,0.08); border-radius:8px; padding:8px 10px; margin-top:10px; font-size:0.78rem; color:var(--purple);">
+          💡 اعمل كميات كبيرة وحطها في الفريزر خام — اشويها وقت ما تحتاجها.
+        </div>
+      </div>
+    </div>
+
+    <!-- OVEN CHICKEN -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(245,166,35,0.1)); padding:16px 18px 12px;">
+        <div style="font-size:1.3rem;">🍗</div>
+        <div style="font-weight:900; font-size:1rem; color:var(--red); margin-top:4px;">فراخ محمرة بالفرن</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">Oven Crispy Chicken — بدون قلي</div>
+        <div style="display:flex; gap:12px; margin-top:10px; font-size:0.78rem;">
+          <span style="color:var(--accent)">🔥 530 kcal</span>
+          <span style="color:var(--green)">💪 54جم بروتين</span>
+          <span style="color:var(--blue)">🌾 20جم كارب</span>
+        </div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin-bottom:8px;">🥩 المقادير (1 شخص)</div>
+        <div style="font-size:0.82rem; line-height:2; color:var(--muted);">
+          • صدر فراخ أو أفخاذ بدون جلد: <strong style="color:var(--text)">230جم</strong><br>
+          • زيت زيتون: <strong style="color:var(--text)">1 م.ص فقط</strong><br>
+          • بابريكا مدخنة + ثوم بودر + بصل بودر + كمون + فلفل أسود + ملح<br>
+          • بيضة 1 + م.ك زبادي (للتغليف)<br>
+          • نخالة قمح أو دقيق كامل م.ك (للقشرة)
+        </div>
+        <div style="font-size:0.8rem; font-weight:700; color:var(--accent2); margin:10px 0 6px;">👨‍🍳 الطريقة</div>
+        <div style="font-size:0.82rem; line-height:1.9; color:var(--muted);">
+          1. اخلط البيضة + زبادي + توابل — غمّس فيها الفراخ.<br>
+          2. لفّ على النخالة أو الدقيق الكامل بضغطة خفيفة.<br>
+          3. حطها على رف الفرن (مش الصينية) على <strong style="color:var(--text)">220 درجة 25-30 دقيقة</strong>.<br>
+          4. في آخر 5 دقايق شغّل الـ Grill فوق للتحمير.
+        </div>
+        <div style="background:rgba(255,107,107,0.08); border-radius:8px; padding:8px 10px; margin-top:10px; font-size:0.78rem; color:var(--red);">
+          💡 وضعها على رف مش صينية بيخليها تتحمر من تحت وفوق — ده سر القشرة.
+        </div>
+      </div>
+    </div>
+
+    <!-- TAHINI SAUCE -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,rgba(86,197,150,0.2),rgba(78,205,196,0.1)); padding:16px 18px 12px;">
+        <div style="font-size:1.3rem;">🥣</div>
+        <div style="font-weight:900; font-size:1rem; color:var(--green); margin-top:4px;">صلصات وتوابل تحلي الأكل</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">استخدمها على أي وجبة — طعم مطعم بدون كالوري زيادة</div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:0.82rem; line-height:2; color:var(--muted);">
+          <strong style="color:var(--green)">🤍 طحينة خفيفة:</strong> م.ص طحينة + ليمون + ثوم + ماء = مش أكتر من 80 kcal للـ م.ك<br>
+          <strong style="color:var(--green)">🌿 صلصة خضراء:</strong> بقدونس + ثوم + كزبرة + ليمون + م.ص زيت زيتون = 0 تقريباً<br>
+          <strong style="color:var(--green)">🍋 ماريناد الليمون:</strong> ليمون + ثوم + خل تفاح + توابل = يحلّي أي سمك أو فراخ<br>
+          <strong style="color:var(--green)">🧄 صلصة ثوم خفيفة:</strong> زبادي + ثوم مبشور + ليمون + ملح = بديل المايونيز تماماً<br>
+          <strong style="color:var(--green)">🌶️ شطة بيتية:</strong> فلفل حار + ثوم + خل + ملح = صفر سعرات تقريباً
+        </div>
+        <div style="background:rgba(86,197,150,0.08); border-radius:8px; padding:8px 10px; margin-top:10px; font-size:0.78rem; color:var(--green);">
+          💡 الصلصات دي هي الفرق بين "أكل ريجيم" وأكل بطعم — استخدمها بحرية.
+        </div>
+      </div>
+    </div>
+
+    <!-- PROTEIN DESSERTS -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">
+      <div style="background:linear-gradient(135deg,rgba(176,132,245,0.25),rgba(255,107,107,0.1)); padding:16px 18px 12px;">
+        <div style="font-size:1.3rem;">🍫</div>
+        <div style="font-weight:900; font-size:1rem; color:var(--purple); margin-top:4px;">حلويات صحية خفيفة</div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">لما الشهوة تجي — بدائل بتخلي النفس تهدى</div>
+      </div>
+      <div style="padding:14px 18px;">
+        <div style="font-size:0.82rem; line-height:2.1; color:var(--muted);">
+          <strong style="color:var(--purple)">🍮 بودينج جبن قريش:</strong><br>
+          <span style="font-size:0.78rem;">جبن قريش 150جم + م.ص عسل طبيعي + قرفة + موز مهروس = <strong style="color:var(--accent)">200 kcal / 18جم بروتين</strong></span><br>
+          <strong style="color:var(--purple)">🍫 موس شوكولاتة داكنة:</strong><br>
+          <span style="font-size:0.78rem;">زبادي 150جم + م.ص كاكاو 100% + م.ص عسل + قرفة = <strong style="color:var(--accent)">160 kcal / 10جم بروتين</strong></span><br>
+          <strong style="color:var(--purple)">🍌 آيس كريم بالموز:</strong><br>
+          <span style="font-size:0.78rem;">موز مجمد 2 حبة في الخلاط = <strong style="color:var(--accent)">180 kcal / 2جم بروتين</strong> — بدون أي إضافات</span><br>
+          <strong style="color:var(--purple)">🥤 ملك شيك بروتين:</strong><br>
+          <span style="font-size:0.78rem;">حليب 200مل + موز + م.ك زبدة سودانية + كاكاو = <strong style="color:var(--accent)">310 kcal / 14جم بروتين</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── CHEAT MEAL SECTION ── -->
+  <div style="margin-top:28px; background:linear-gradient(135deg,rgba(255,107,107,0.1),rgba(245,166,35,0.08)); border:2px solid var(--red); border-radius:14px; padding:22px;">
+    <div style="font-size:1.1rem; font-weight:900; color:var(--red); margin-bottom:14px;">🎉 Cheat Meal الأسبوعي — القواعد الكاملة</div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+      <div class="alert success">
+        <div>
+          <strong>✅ قواعد الـ Cheat Meal الصح</strong>
+          <ul style="margin-top:8px; margin-right:16px; font-size:0.82rem; line-height:2;">
+            <li>مرة <strong>واحدة فقط</strong> في الأسبوع — مش يوم كامل</li>
+            <li>في يوم التمرين <strong>بعد التمرين مباشرة</strong> = أفضل توقيت</li>
+            <li>وجبة واحدة — مش تتحول ليوم غش كامل</li>
+            <li>كمية عاقلة — مش "أكل انتقامي"</li>
+            <li>بعده فوراً: ارجع للنظام في العشاء</li>
+            <li>اشرب 500مل ماء قبله — يقلل الكمية</li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert danger">
+        <div>
+          <strong>❌ أخطاء الـ Cheat Meal</strong>
+          <ul style="margin-top:8px; margin-right:16px; font-size:0.82rem; line-height:2;">
+            <li>يومين متتاليين = أسبوع تقدم راح</li>
+            <li>Cheat Meal + Cheat Snack + Cheat Dessert = يوم غش</li>
+            <li>عمله في يوم راحة = أسوأ توقيت</li>
+            <li>"خلاص النهارده خسرته" = فخ نفسي خطير</li>
+            <li>أكتر من 1000 kcal زيادة = بيلغي عجز 3 أيام</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:0.85rem; font-weight:700; color:var(--accent); margin-bottom:10px;">🍕 أمثلة Cheat Meal مناسبة (600-800 kcal)</div>
+    <div class="tbl-wrap"><table>
+      <tr><th>الوجبة</th><th>kcal تقريبي</th><th>نصيحة</th></tr>
+      <tr><td>🍕 بيتزا منزلية خبز بلدي + جبن + دجاج</td><td class="kcal">650</td><td class="alt">اعملها في البيت — أقل دهون من الجاهزة</td></tr>
+      <tr><td>🌯 شاورما من برا (دجاج بدون صلصات تقيلة)</td><td class="kcal">600</td><td class="alt">اطلب بدون مايونيز — الطحينة أحسن</td></tr>
+      <tr><td>🍔 برجر بيتي (لحم مفروم + عيش بلدي)</td><td class="kcal">680</td><td class="alt">بدون جبن كريمي — جبن قليل الدسم</td></tr>
+      <tr><td>🥩 كباب مطعم + أرز + سلطة</td><td class="kcal">720</td><td class="alt">من مطعم محترم — الكباب المشوي آمن</td></tr>
+      <tr><td>🍗 فراخ محمرة مطعم (قطعتين بدون جلد)</td><td class="kcal">550</td><td class="alt">شيل الجلد — بيوفر 200 kcal</td></tr>
+      <tr><td>🍝 باستا بصلصة طماطم طبيعية + لحم</td><td class="kcal">700</td><td class="alt">Homemade دايماً أحسن من المطعم</td></tr>
+    </table></div>
+
+    <div class="alert info" style="margin-top:14px;">
+      <span>🧠</span>
+      <div><strong>الـ Cheat Meal النفسي:</strong> وجوده في الخطة بيخليك مش تفكر في الأكل المحرم طول الأسبوع — الإحساس إن في "مكافأة جاية" بيخلي الالتزام أسهل بكتير من الحرمان الكامل.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 4: LIFESTYLE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🌅</span> روتين اللايف ستايل اليومي
+    <span class="badge purple">24 ساعة</span>
+  </div>
+
+  <div class="tracker-bar-wrap">
+    <div class="tracker-title">📅 تقدم يومك</div>
+    <div class="tracker-progress">
+      <div class="t-bar-outer"><div class="t-bar-inner" id="daily-bar" style="width:0%"></div></div>
+      <div class="tracker-pct" id="daily-pct">0 / 0 مهمة</div>
+    </div>
+    <button class="reset-btn" onclick="resetGroup('daily')">إعادة ضبط</button>
+  </div>
+
+  <div class="timeline">
+    <div class="t-item">
+      <div class="t-dot blue"></div>
+      <div class="t-time">6:30 ص</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d1" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">⏰ الاستيقاظ</strong><br>اشرب فور الصحيان كوب ماء كامل (250مل).</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">6:45 ص</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d2" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">☕ الكافيين</strong><br>قهوة سوداء أو شاي أخضر بدون سكر. آخر موعد 2:00م.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot green"></div>
+      <div class="t-time">10:00 ص</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d3" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">🚶 الخطوات الصباحية</strong><br>مشي خفيف 20-30 دقيقة. هدف يومي: 8000-10000 خطوة.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">11:30 ص</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d4" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">💧 ماء قبل الفطار</strong><br>كوبين ماء (500مل) قبل الفطار بنص ساعة.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">12:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d5" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">🍳 الفطار</strong><br>وجبة 1. أكل بهدوء، مضغ كويس، مش على التلفون.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot green"></div>
+      <div class="t-time">3:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d6" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">🏋️ التمرين (أيام التمرين فقط)</strong><br>قبل التمرين بـ30 دق: كوب قهوة سوداء. مدة التمرين: 60-75 دقيقة.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot green"></div>
+      <div class="t-time">4:45 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d7" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">⚡ بعد التمرين</strong><br>500-700مل ماء فوراً + سناك (جبن قريش أو زبادي + فاكهة) بعد 30 دق.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">5:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d8" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">💧 ماء قبل الغداء</strong><br>كوبين ماء (500مل).</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">5:30 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d9" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">🍗 الغداء</strong><br>الوجبة الرئيسية والأكبر في اليوم.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">7:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d10" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">💧 ماء قبل العشاء</strong><br>كوبين ماء (500مل).</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot"></div>
+      <div class="t-time">7:30 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d11" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">🥗 العشاء</strong><br>آخر وجبة. خفيفة. إغلاق نافذة الأكل بعدها.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot red"></div>
+      <div class="t-time">8:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d12" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">🔒 إغلاق نافذة الأكل</strong><br>لا أكل بعد 8م. ماء وشاي أعشاب فقط.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot purple"></div>
+      <div class="t-time">10:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d13" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">📵 تحضير للنوم</strong><br>قلل الشاشات. خفف الإضاءة. الغرفة باردة نسبياً.</div>
+        </label>
+      </div>
+    </div>
+    <div class="t-item">
+      <div class="t-dot blue"></div>
+      <div class="t-time">11:00 م</div>
+      <div class="t-content">
+        <label class="chk-wrap" data-group="daily" data-id="d14" onclick="toggleChk(this)">
+          <div class="chk-box"></div>
+          <div class="chk-label"><strong class="t-title">😴 النوم</strong><br><strong>الهدف: 7-8 ساعات نوم</strong>. النوم مهم جداً لخسارة الدهون وتعافي العضلات.</div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;">
+    <div class="alert success">
+      <div>
+        <strong>💧 توزيع الماء اليومي (3 لتر)</strong><br>
+        <span style="font-size:0.82rem;">
+        • صحيان: 250مل<br>
+        • قبل الفطار: 500مل<br>
+        • قبل الغداء: 500مل<br>
+        • قبل العشاء: 500مل<br>
+        • خلال اليوم: 1250مل<br>
+        <strong>= 3000مل ✅</strong>
+        </span>
+      </div>
+    </div>
+    <div class="alert warning">
+      <div>
+        <strong>☕ قواعد الكافيين</strong><br>
+        <span style="font-size:0.82rem;">
+        • مسموح: قهوة سوداء أو شاي أخضر<br>
+        • آخر موعد: 2:00 م<br>
+        • الحد الأقصى: 2-3 أكواب يومياً<br>
+        • ممنوع: مشروبات الطاقة / قهوة بسكر أو كريمة
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 5: WORKOUT PLAN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🏋️</span> جدول التمارين الأسبوعي
+    <span class="badge green">مناسب للبداية / العودة</span>
+  </div>
+
+  <div class="alert warning">
+    <span>⚠️</span>
+    <div>الخطة مصممة لشخص وزنه 121 كجم – التركيز على الأمان، حماية المفاصل، وحرق الدهون مع الحفاظ على العضلات. 3 أيام أوزان + كارديو خفيف يومي.</div>
+  </div>
+
+  <div class="tracker-bar-wrap">
+    <div class="tracker-title">🏋️ تقدم الأسبوع</div>
+    <div class="tracker-progress">
+      <div class="t-bar-outer"><div class="t-bar-inner" id="workout-bar" style="width:0%"></div></div>
+      <div class="tracker-pct" id="workout-pct">0 / 0 تمرين</div>
+    </div>
+    <button class="reset-btn" onclick="resetGroup('workout')">إعادة ضبط</button>
+  </div>
+
+  <div class="ex-grid">
+    <div class="ex-card">
+      <div class="ex-day">الاثنين 🏋️ أوزان + كارديو</div>
+      <label class="chk-wrap" data-group="workout" data-id="w1" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">5 دق</span> إحماء: مشي على التريدميل بطيء</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w2" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Leg Press</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w3" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×15</span> Leg Curl</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w4" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Chest Press Machine</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w5" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Seated Row</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w6" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×15</span> Shoulder Press Machine</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w7" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">20 دق</span> كارديو: مشي سريع أو دراجة ثابتة</div></label>
+    </div>
+    <div class="ex-card">
+      <div class="ex-day">الثلاثاء 🚶 كارديو خفيف</div>
+      <label class="chk-wrap" data-group="workout" data-id="w8" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">45 دق</span> مشي سريع خارجي أو تريدميل</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w9" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">10 دق</span> تمارين إطالة وتبريد</div></label>
+    </div>
+    <div class="ex-card">
+      <div class="ex-day">الأربعاء 🏋️ أوزان + كارديو</div>
+      <label class="chk-wrap" data-group="workout" data-id="w10" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">5 دق</span> إحماء</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w11" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Lat Pulldown</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w12" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Cable Row</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w13" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×15</span> Dumbbell Curl</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w14" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×15</span> Tricep Pushdown</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w15" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Hip Abductor</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w16" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">25 دق</span> كارديو منخفض الشدة</div></label>
+    </div>
+    <div class="ex-card">
+      <div class="ex-day">الخميس 😴 راحة فعّالة</div>
+      <label class="chk-wrap" data-group="workout" data-id="w17" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">30 دق</span> مشي هادي</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w18" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">15 دق</span> تمارين إطالة كاملة</div></label>
+    </div>
+    <div class="ex-card">
+      <div class="ex-day">الجمعة 🏋️ أوزان + كارديو</div>
+      <label class="chk-wrap" data-group="workout" data-id="w19" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">5 دق</span> إحماء</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w20" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Incline Chest Press</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w21" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Smith Machine Squat (خفيف)</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w22" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×15</span> Standing Calf Raise</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w23" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×12</span> Face Pulls</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w24" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">3×15</span> Plank (30 ثانية)</div></label>
+      <label class="chk-wrap" data-group="workout" data-id="w25" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">25 دق</span> كارديو + تبريد</div></label>
+    </div>
+    <div class="ex-card">
+      <div class="ex-day">السبت 🚶 نشاط خفيف</div>
+      <label class="chk-wrap" data-group="workout" data-id="w26" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label"><span class="ex-sets">40 دق</span> مشي طبيعي</div></label>
+    </div>
+    <div class="ex-card">
+      <div class="ex-day">الأحد 😴 راحة تامة</div>
+      <label class="chk-wrap" data-group="workout" data-id="w27" onclick="toggleChk(this)"><div class="chk-box"></div><div class="chk-label">✅ يوم راحة كامل – تم</div></label>
+    </div>
+  </div>
+
+  <div class="alert success" style="margin-top: 16px;">
+    <span>💡</span>
+    <div>
+      <strong>نصائح التمرين للمرحلة الأولى:</strong>
+      <ul style="margin-top:6px; margin-right:16px; font-size:0.85rem;">
+        <li>ابدأ بأوزان خفيفة 60-70% من طاقتك القصوى – الهدف الأول هو الثبات وليس القوة</li>
+        <li>راحة 90 ثانية بين السيتات</li>
+        <li>الكارديو منخفض الشدة (LISS) هو الأفضل لحرق الدهون مع الحفاظ على العضلات في وضعك الحالي</li>
+        <li>لو حسيت بألم في الركب أو الظهر: وقف فوراً واستبدل التمرين بتمرين Machine بديل</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 6: ALLOWED / FORBIDDEN / MISTAKES -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title"><span>✅❌</span> المسموحات والممنوعات والأخطاء الشائعة</div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div>
+      <h3 style="color: var(--green);">✅ المسموحات</h3>
+      <div class="pill-wrap">
+        <span class="pill green">فراخ مسلوقة / مشوية</span>
+        <span class="pill green">لحم بقري قليل الدهن</span>
+        <span class="pill green">سمك أي نوع</span>
+        <span class="pill green">تونا طبيعية (في ماء)</span>
+        <span class="pill green">جبن قريش</span>
+        <span class="pill green">زبادي طبيعي</span>
+        <span class="pill green">بيض (حتى 2-3 يومياً)</span>
+        <span class="pill green">بطاطا حلوة مسلوقة</span>
+        <span class="pill green">أرز بني</span>
+        <span class="pill green">بطاطا مسلوقة</span>
+        <span class="pill green">خبز أسمر (معتدل)</span>
+        <span class="pill green">كل الخضروات</span>
+        <span class="pill green">فاكهة طازجة</span>
+        <span class="pill green">لوز / جوز / مكسرات طبيعية</span>
+        <span class="pill green">زيت زيتون</span>
+        <span class="pill green">حليب قليل الدسم</span>
+        <span class="pill green">قهوة سوداء / شاي أخضر</span>
+        <span class="pill green">ليمون / خل تفاح</span>
+        <span class="pill green">أعشاب وتوابل طبيعية</span>
+        <span class="pill green">ماء غير محدود</span>
+      </div>
+    </div>
+    <div>
+      <h3 style="color: var(--red);">❌ الممنوعات</h3>
+      <div class="pill-wrap">
+        <span class="pill red">سكر أبيض ومحليات</span>
+        <span class="pill red">مشروبات غازية / عصائر مصنعة</span>
+        <span class="pill red">مشروبات طاقة</span>
+        <span class="pill red">خبز أبيض ومعجنات</span>
+        <span class="pill red">أرز أبيض (قلله جداً)</span>
+        <span class="pill red">بطاطس مقلية</span>
+        <span class="pill red">أكل مقلي بزيت كثير</span>
+        <span class="pill red">وجبات سريعة (ماكدونالدز، KFC)</span>
+        <span class="pill red">شوكولاتة / حلوى</span>
+        <span class="pill red">عصائر فاكهة (حتى الطبيعي)</span>
+        <span class="pill red">لحوم مصنعة (سجق، مرتديلا)</span>
+        <span class="pill red">جبن كريمي دسم</span>
+        <span class="pill red">صلصات جاهزة (كاتشب، مايونيز)</span>
+        <span class="pill red">بقوليات (فول، عدس، حمص)</span>
+        <span class="pill red">أكل بعد 8م</span>
+        <span class="pill red">كسر الصيام المتقطع بأكل ثقيل</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top: 20px;">⚠️ أخطاء شائعة تبطئ النزول في حالتك</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>الخطأ</th><th>السبب</th><th>الحل</th></tr>
+    <tr><td>قلة النوم</td><td>يرفع الكورتيزول ويزيد التخزين الحشوي</td><td>7-8 ساعات ثابتة</td></tr>
+    <tr><td>تقليل السعرات جداً (+500 قليلة)</td><td>يحرق العضلات ويبطئ الأيض</td><td>الزم الأرقام المحددة</td></tr>
+    <tr><td>إهمال البروتين</td><td>يفقدك العضلات مع الدهون</td><td>135جم بروتين يومياً ثابت</td></tr>
+    <tr><td>تخطي الوجبات ثم الإفراط</td><td>يخل بالسعرات اليومية</td><td>3 وجبات + سناك منتظمة</td></tr>
+    <tr><td>عدم شرب الماء الكافي</td><td>يبطئ الأيض ويزيد الجوع الكاذب</td><td>3 لتر يومياً إلزامي</td></tr>
+    <tr><td>الاعتماد على الكارديو فقط</td><td>يفقد العضلات مع الوقت</td><td>أوزان + كارديو معاً</td></tr>
+    <tr><td>الأكل من أكياس / وسط التلفزيون</td><td>يزيد الكميات بدون وعي</td><td>طبق ثابت + وزن الأكل</td></tr>
+    <tr><td>ريفيد دراما أو "اليوم مكسور"</td><td>أسبوع تقدم يضيع في يوم</td><td>لو جعت: جبن قريش / خضار</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 7: SHOPPING LIST -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🛒</span> قائمة المشتريات الأسبوعية
+    <span class="badge">اقتصادية وعملية</span>
+  </div>
+
+  <div class="tracker-bar-wrap">
+    <div class="tracker-title">🛒 تقدم المشتريات</div>
+    <div class="tracker-progress">
+      <div class="t-bar-outer"><div class="t-bar-inner" id="shop-bar" style="width:0%"></div></div>
+      <div class="tracker-pct" id="shop-pct">0 / 0 صنف</div>
+    </div>
+    <button class="reset-btn" onclick="resetGroup('shop')">إعادة ضبط</button>
+  </div>
+
+  <div class="shop-grid">
+    <div class="shop-cat">
+      <h4>🥩 بروتينات</h4>
+      <label class="shop-chk" data-group="shop" data-id="s1" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">صدر فراخ: 1.5 كجم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s2" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">سمك بلطي/بوري: 700جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s3" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">تونا طبيعية (في ماء): 4 علب</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s4" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">لحم بقري قليل دهن: 500جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s5" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">بيض: 10 حبات</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>🥛 ألبان وأجبان</h4>
+      <label class="shop-chk" data-group="shop" data-id="s6" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">جبن قريش: 500جم (قطعتين)</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s7" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">زبادي طبيعي: 6 علب 200جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s8" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">حليب قليل الدسم: 1 لتر</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>🌾 كربوهيدرات معقدة</h4>
+      <label class="shop-chk" data-group="shop" data-id="s9" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">أرز بني: 1 كجم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s10" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">عيش بلدي أسمر (طازج)</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s11" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">بطاطا حلوة: 1 كجم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s12" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">بطاطا: 1 كجم</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>🥬 خضروات</h4>
+      <label class="shop-chk" data-group="shop" data-id="s13" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">خيار: 1 كجم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s14" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">طماطم: 1 كجم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s15" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">خس / جرجير</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s16" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">فلفل ألوان: 3 حبات</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s17" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">كوسة: 500جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s18" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">بروكلي: 500جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s19" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">جزر: 500جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s20" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">بصل + ثوم</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>🍎 فاكهة</h4>
+      <label class="shop-chk" data-group="shop" data-id="s21" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">موز: 5 حبات</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s22" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">تفاح: 5 حبات</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s23" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">برتقال / مندرين: 5 حبات</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s24" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">فراولة موسمية: 250جم</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>🥜 دهون صحية</h4>
+      <label class="shop-chk" data-group="shop" data-id="s25" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">لوز طبيعي: 100جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s26" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">جوز: 50جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s27" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">زبدة سودانية طبيعية: 200جم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s28" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">زيت زيتون: 200مل</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s28b" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">أفوكادو: 3-4 حبات أسبوعياً 🥑</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s29" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">زيتون طبيعي: 200جم</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>☕ مشروبات وإضافات</h4>
+      <label class="shop-chk" data-group="shop" data-id="s30" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">قهوة سوداء طبيعية</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s31" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">شاي أخضر (أكياس)</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s32" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">ليمون</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s33" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">توابل: ملح + فلفل + كمون + كركم</span></label>
+      <label class="shop-chk" data-group="shop" data-id="s34" onclick="toggleChk(this)"><div class="chk-box"></div><span class="chk-label">ماء معدني / مياه</span></label>
+    </div>
+    <div class="shop-cat">
+      <h4>💡 نصيحة التوفير</h4>
+      <div class="shop-item">اشتري الفراخ كاملة وقطّعها بنفسك</div>
+      <div class="shop-item">السمك الطازج دايماً أرخص من المجمد</div>
+      <div class="shop-item">الخضار الموسمية أرخص وأفضل</div>
+      <div class="shop-item">التونا الطبيعية = أرخص بروتين جاهز</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 8: GOALS & TRACKING -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>📈</span> الأهداف والمتابعة
+  </div>
+
+  <div class="goals-grid">
+    <div class="goal-card">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;">📅 هدف الشهر الأول</div>
+      <div class="goal-num">4-6</div>
+      <div style="font-size:0.8rem; color:var(--muted);">كجم خسارة دهون</div>
+      <div style="font-size:0.75rem; color:var(--accent); margin-top:8px;">+ بدء انتظام الروتين والمواعيد</div>
+    </div>
+    <div class="goal-card blue">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;">📅 هدف 3 شهور</div>
+      <div class="goal-num" style="color:var(--blue);">12-18</div>
+      <div style="font-size:0.8rem; color:var(--muted);">كجم خسارة دهون</div>
+      <div style="font-size:0.75rem; color:var(--blue); margin-top:8px;">Visceral Fat من 20 → 14-15</div>
+    </div>
+    <div class="goal-card green">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:6px;">⚡ معدل النزول الأسبوعي</div>
+      <div class="goal-num" style="color:var(--green);">0.8-1.2</div>
+      <div style="font-size:0.8rem; color:var(--muted);">كجم / أسبوع (واقعي وآمن)</div>
+      <div style="font-size:0.75rem; color:var(--green); margin-top:8px;">أكثر من كده = خسارة عضلات</div>
+    </div>
+  </div>
+
+  <h3>📏 كيفية متابعة التقدم</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>الطريقة</th><th>التوقيت</th><th>ملاحظات</th></tr>
+    <tr><td>⚖️ الوزن</td><td>مرة أسبوعياً – صباح الاثنين، صحيان، قبل الأكل</td><td>متوسط 3 قراءات أدق من قراءة واحدة. الوزن بيتذبذب ±1.5 كجم يومياً طبيعي.</td></tr>
+    <tr><td>📐 المقاسات</td><td>مرة كل أسبوعين</td><td>محيط الخصر + الأرداف + العنق + الذراع. أهم من الوزن في حالتك.</td></tr>
+    <tr><td>📸 صور</td><td>كل شهر (نفس الإضاءة والوضعية)</td><td>أمام + جانب + خلف. هتلاحظ فرق واضح خلال شهرين.</td></tr>
+    <tr><td>🏥 InBody</td><td>كل 6-8 أسابيع</td><td>المؤشرات المهمة: Visceral Fat Level + PBF + SMM (عضلات ثابتة = ناجح)</td></tr>
+    <tr><td>💪 الأداء</td><td>أسبوعياً في التمرين</td><td>لو الأوزان بترتفع = جسمك بيشتغل كويس حتى في العجز السعري</td></tr>
+  </table></div>
+
+  <div class="alert success" style="margin-top: 16px;">
+    <span>🌟</span>
+    <div>
+      <strong>المرحلة الأولى (الشهور 1-3): التأسيس</strong> – الهدف الأهم مش بس الوزن، هو تكوين العادات: النافذة، الماء، النوم، التمرين. الجسم هياخد أسبوعين ثلاثة يتأقلم ثم يبدأ النزول يكون أسرع وأكثر ثبات.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 9: BIWEEKLY COUNTDOWN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🗓️</span> جدول الثلاثاءات – الطريق لـ 100 كجم
+    <span class="badge green">كل أسبوعين</span>
+  </div>
+
+  <!-- Target Hero -->
+  <div style="background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(86,197,150,0.08)); border: 2px solid var(--accent); border-radius: 14px; padding: 22px; text-align: center; margin-bottom: 22px;">
+    <div style="font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;">🏁 يوم الوصول لـ 100 كجم</div>
+    <div style="font-size: 2.4rem; font-weight: 900; color: var(--accent);">الأربعاء 23 سبتمبر 2026</div>
+    <div style="color: var(--muted); font-size: 0.85rem; margin-top: 6px;">21 أسبوع · 155 يوم · من 121 كجم ← 100 كجم · بداية 22 أبريل 2026</div>
+    <div id="countdown-display" style="margin-top: 12px; font-size: 1rem; font-weight: 700; color: var(--green);"></div>
+  </div>
+
+  <!-- Overall progress bar -->
+  <div style="margin-bottom: 22px;">
+    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;">
+      <span>121 كجم — البداية</span>
+      <span id="overall-pct-lbl">0%</span>
+      <span>100 كجم — الهدف 🎯</span>
+    </div>
+    <div style="background: var(--border); border-radius: 10px; height: 14px; overflow: hidden;">
+      <div id="overall-bar" style="height:100%; width:0%; background: linear-gradient(90deg, var(--green), var(--accent)); border-radius: 10px; transition: width 0.5s;"></div>
+    </div>
+  </div>
+
+  <!-- Biweekly table -->
+  <div class="tbl-wrap">
+  <table id="checkpoint-table">
+    <tr>
+      <th style="width:40px">#</th>
+      <th>📅 التاريخ (ثلاثاء)</th>
+      <th>⚖️ الوزن المستهدف</th>
+      <th>📉 المفقود</th>
+      <th>✍️ وزنك الفعلي</th>
+      <th>📊 الحالة</th>
+    </tr>
+    <tr style="background: rgba(245,166,35,0.08);">
+      <td style="color:var(--muted); font-size:0.8rem;">0</td>
+      <td><strong style="color:var(--accent)">22 أبريل 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">🚀 البداية الجديدة</span></td>
+      <td><strong style="color:var(--accent)">121.0 كجم</strong></td>
+      <td style="color:var(--muted)">—</td>
+      <td>
+        <input class="weight-input" data-cp="0" data-target="121" type="number" placeholder="121" min="80" max="130" step="0.1" oninput="updateCP(this)">
+      </td>
+      <td id="cp-status-0">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">1</td>
+      <td><strong>6 مايو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 2</span></td>
+      <td>119.0 كجم</td><td style="color:var(--red)">-2 كجم</td>
+      <td><input class="weight-input" data-cp="1" data-target="119" type="number" placeholder="119" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-1">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">2</td>
+      <td><strong>20 مايو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 4</span></td>
+      <td>117.0 كجم</td><td style="color:var(--red)">-4 كجم</td>
+      <td><input class="weight-input" data-cp="2" data-target="117" type="number" placeholder="117" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-2">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">3</td>
+      <td><strong>3 يونيو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 6</span></td>
+      <td>115.0 كجم</td><td style="color:var(--red)">-6 كجم</td>
+      <td><input class="weight-input" data-cp="3" data-target="115" type="number" placeholder="115" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-3">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">4</td>
+      <td><strong>17 يونيو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 8 · شهرين 🎉</span></td>
+      <td style="color:var(--blue)"><strong>113.0 كجم</strong></td><td style="color:var(--red)">-8 كجم</td>
+      <td><input class="weight-input" data-cp="4" data-target="113" type="number" placeholder="113" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-4">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">5</td>
+      <td><strong>1 يوليو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 10</span></td>
+      <td>111.0 كجم</td><td style="color:var(--red)">-10 كجم</td>
+      <td><input class="weight-input" data-cp="5" data-target="111" type="number" placeholder="111" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-5">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">6</td>
+      <td><strong>15 يوليو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 12 · 3 شهور 🏆</span></td>
+      <td style="color:var(--purple)"><strong>109.0 كجم</strong></td><td style="color:var(--red)">-12 كجم</td>
+      <td><input class="weight-input" data-cp="6" data-target="109" type="number" placeholder="109" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-6">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">7</td>
+      <td><strong>29 يوليو 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 14</span></td>
+      <td>107.0 كجم</td><td style="color:var(--red)">-14 كجم</td>
+      <td><input class="weight-input" data-cp="7" data-target="107" type="number" placeholder="107" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-7">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">8</td>
+      <td><strong>12 أغسطس 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 16 · 4 شهور</span></td>
+      <td style="color:var(--accent2)"><strong>105.0 كجم</strong></td><td style="color:var(--red)">-16 كجم</td>
+      <td><input class="weight-input" data-cp="8" data-target="105" type="number" placeholder="105" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-8">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">9</td>
+      <td><strong>26 أغسطس 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 18</span></td>
+      <td>103.0 كجم</td><td style="color:var(--red)">-18 كجم</td>
+      <td><input class="weight-input" data-cp="9" data-target="103" type="number" placeholder="103" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-9">—</td>
+    </tr>
+    <tr>
+      <td style="color:var(--muted); font-size:0.8rem;">10</td>
+      <td><strong>9 سبتمبر 2026</strong><br><span style="font-size:0.75rem; color:var(--muted)">أسبوع 20 · آخر نقطة قبل الهدف</span></td>
+      <td>101.0 كجم</td><td style="color:var(--red)">-20 كجم</td>
+      <td><input class="weight-input" data-cp="10" data-target="101" type="number" placeholder="101" min="80" max="130" step="0.1" oninput="updateCP(this)"></td>
+      <td id="cp-status-10">—</td>
+    </tr>
+    <tr style="background: linear-gradient(135deg, rgba(245,166,35,0.15), rgba(86,197,150,0.1)); border: 1px solid var(--accent);">
+      <td style="color:var(--accent); font-weight:900;">🎯</td>
+      <td><strong style="color:var(--accent); font-size:1rem;">23 سبتمبر 2026</strong><br><span style="font-size:0.75rem; color:var(--green)">أسبوع 21 · 🏁 يوم الهدف!</span></td>
+      <td><strong style="color:var(--accent); font-size:1.1rem;">100.0 كجم 🎉</strong></td>
+      <td style="color:var(--green); font-weight:700;">-21 كجم</td>
+      <td><input class="weight-input" data-cp="11" data-target="100" type="number" placeholder="100" min="80" max="120" step="0.1" oninput="updateCP(this)" style="border-color: var(--accent);"></td>
+      <td id="cp-status-11">—</td>
+    </tr>
+  </table>
+  </div>
+
+  <div style="margin-top: 14px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <div style="font-size: 0.8rem; color: var(--muted);">اكتب وزنك الفعلي في كل محطة وهيظهرلك حالتك:</div>
+    <span style="font-size:0.8rem; background: rgba(86,197,150,0.15); border:1px solid var(--green); color:var(--green); padding:2px 10px; border-radius:20px;">✅ في الموعد</span>
+    <span style="font-size:0.8rem; background: rgba(91,156,246,0.15); border:1px solid var(--blue); color:var(--blue); padding:2px 10px; border-radius:20px;">🚀 متقدم</span>
+    <span style="font-size:0.8rem; background: rgba(255,107,107,0.15); border:1px solid var(--red); color:var(--red); padding:2px 10px; border-radius:20px;">⚠️ متأخر</span>
+    <button class="reset-btn" onclick="clearWeights()" style="margin-right:auto;">مسح الأوزان</button>
+  </div>
+
+  <div class="alert warning" style="margin-top: 16px;">
+    <span>💡</span>
+    <div><strong>تذكر:</strong> الوزن بيتذبذب ±1-2 كجم يومياً بسبب الماء والأكل. قيّس دايماً <strong>الثلاثاء الصبح صحيان</strong> قبل الأكل بنفس الملابس للحصول على قراءة دقيقة.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 10: SEXUAL HEALTH & TESTOSTERONE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🔥</span> تعزيز الصحة الجنسية والتستوستيرون
+    <span class="badge purple">طبيعي 100%</span>
+  </div>
+
+  <div class="alert danger">
+    <span>⚠️</span>
+    <div>
+      <strong>السبب الجذري في حالتك:</strong> الدهون الحشوية (Visceral Fat = 20) تحوّل التستوستيرون لاستروجين عبر إنزيم Aromatase. يعني كل ما تنزل الدهون الحشوية، التستوستيرون يرتفع تلقائياً. <strong>خسارة 10% من وزنك = ارتفاع ملحوظ في مستوى التستوستيرون.</strong>
+    </div>
+  </div>
+
+  <h3>🥗 أكل يرفع التستوستيرون ويحسن الصحة الجنسية</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>الأكل</th><th>الكمية اليومية</th><th>الفائدة</th><th>كيف تاكله</th></tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🥩 لحم بقري / كبدة</strong></td>
+      <td>مرة واحدة أسبوعياً فقط (بناءً على تحاليل LDL)</td>
+      <td>زنك + حديد + بروتين كامل = أساس بناء التستوستيرون</td>
+      <td>مشوي أو مسلوق – كبدة مرة أسبوعياً ممتازة</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🥚 صفار البيض</strong></td>
+      <td>2-3 بيضات كاملة (مش بس بياض)</td>
+      <td>كوليسترول صحي = مادة خام لتصنيع التستوستيرون</td>
+      <td>مسلوق أو مخفوق بزيت زيتون</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🐟 سلمون / سردين / ماكريل</strong></td>
+      <td>3 مرات أسبوعياً (بناءً على تحاليل LDL — يخفض الكوليسترول الضار)</td>
+      <td>أوميغا 3 يقلل الالتهاب ويحسن تدفق الدم وجودة الحيوانات المنوية</td>
+      <td>مشوي + ليمون + زيت زيتون</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🥑 أفوكادو</strong></td>
+      <td>نص حبة يومياً أو يوم بيوم</td>
+      <td>دهون أحادية غير مشبعة + فيتامين B6 + حمض الفوليك = دعم هرموني ممتاز</td>
+      <td>في السلطة أو مع عيش بلدي أسمر</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🥜 لوز + جوز</strong></td>
+      <td>30-40جم يومياً</td>
+      <td>زنك + سيلينيوم + أوميغا 3 – تثبيط Aromatase وحماية التستوستيرون</td>
+      <td>في السناك أو مع الزبادي</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🧄 ثوم طازج</strong></td>
+      <td>2-3 فصوص يومياً</td>
+      <td>يحفز إفراز LH الذي يحث على إنتاج التستوستيرون</td>
+      <td>في الطبخ أو مع السلطة</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🍌 موز</strong></td>
+      <td>1 حبة يومياً</td>
+      <td>بروميلين + بوتاسيوم + فيتامين B = تحسين مستوى الطاقة والأداء</td>
+      <td>في الفطار أو قبل التمرين</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🍫 كاكاو خام (نيب أو بودرة)</strong></td>
+      <td>م.ك في الحليب أو الزبادي</td>
+      <td>فلافانويد يحسن تدفق الدم + مغنيسيوم طبيعي</td>
+      <td>كاكاو بودرة 100% بدون سكر في الحليب السادة</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🥬 بروكلي + كرنب</strong></td>
+      <td>3-4 مرات أسبوعياً</td>
+      <td>Indole-3-carbinol يكسر الاستروجين الزائد ويرفع نسبة التستوستيرون الحر</td>
+      <td>مسلوق خفيف أو مشوي</td>
+    </tr>
+    <tr>
+      <td><strong style="color:var(--accent)">🌿 زنجبيل طازج</strong></td>
+      <td>م.ص في الشاي أو الأكل</td>
+      <td>دراسات أثبتت رفعه للتستوستيرون بنسبة 17% عند الأكل المنتظم</td>
+      <td>شاي زنجبيل بدون سكر</td>
+    </tr>
+  </table></div>
+
+  <h3>💊 مكملات طبيعية مفيدة (اختيارية)</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>المكمل</th><th>الجرعة</th><th>الوقت</th><th>الفائدة</th></tr>
+    <tr><td><strong>زنك</strong></td><td>25-30مج يومياً</td><td>مع العشاء</td><td>أهم معدن لإنتاج التستوستيرون – شبه إلزامي في حالتك</td></tr>
+    <tr><td><strong>مغنيسيوم (Glycinate)</strong></td><td>300-400مج يومياً</td><td>قبل النوم</td><td>يرفع التستوستيرون الحر + يحسن جودة النوم</td></tr>
+    <tr><td><strong>فيتامين D3</strong></td><td>2000 وحدة</td><td>مع وجبة دسمة</td><td>مستواك وصل الكافي (36.84) — جرعة صيانة تكفي</td></tr>
+    <tr><td><strong>أوميغا 3</strong></td><td>2-3جم يومياً</td><td>مع الغداء</td><td>تحسين تدفق الدم وتقليل الالتهاب الهرموني</td></tr>
+    <tr><td><strong>أشواغاندا</strong></td><td>600مج يومياً</td><td>مع العشاء</td><td>تقليل الكورتيزول + رفع التستوستيرون + تحسين جودة النوم والحيوية</td></tr>
+  </table></div>
+  <div class="note">* المكملات مش إلزامية – الأكل الصح والنوم والتمرين أهم. استشر طبيب قبل البدء في أي مكمل.</div>
+
+  <h3>🛌 عادات ترفع التستوستيرون بشكل مباشر</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+    <div class="alert success">
+      <div>
+        <strong>✅ افعل هذا</strong>
+        <ul style="margin-top:8px; margin-right:16px; font-size:0.83rem; line-height:2;">
+          <li>نم <strong>7-8 ساعات</strong> – 80% من التستوستيرون بيتصنع أثناء النوم العميق</li>
+          <li>تمارين الأوزان (Compound) مثل Leg Press وRowing = أعلى استجابة هرمونية</li>
+          <li>تعرض لأشعة الشمس 20-30 دق الصبح = فيتامين D طبيعي</li>
+          <li>قلل الضغط والتوتر = الكورتيزول العدو الأول للتستوستيرون</li>
+          <li>خسارة كل 10% من الدهون الحشوية = ارتفاع تستوستيرون ملحوظ</li>
+        </ul>
+      </div>
+    </div>
+    <div class="alert danger">
+      <div>
+        <strong>❌ تجنب هذا</strong>
+        <ul style="margin-top:8px; margin-right:16px; font-size:0.83rem; line-height:2;">
+          <li>السكر والكارب الأبيض = يرفع الأنسولين ويثبط التستوستيرون</li>
+          <li>قلة النوم أو النوم المتأخر = أكبر قاتل هرموني</li>
+          <li>الكحول (حتى الخفيف) = يحول التستوستيرون لاستروجين</li>
+          <li>الكارديو المفرط (أكتر من 90 دق يومياً) = يرفع الكورتيزول</li>
+          <li>الإجهاد المزمن والضغط النفسي بدون إدارة</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert info" style="margin-top: 14px;">
+    <span>📈</span>
+    <div><strong>التوقع الواقعي:</strong> مع خسارة 10-15 كجم دهون + النوم الكافي + الزنك والمغنيسيوم، هتلاحظ فرق واضح في مستوى الطاقة والليبيدو خلال <strong>6-8 أسابيع</strong>. لو عايز تقيس: تحليل Total Testosterone + Free Testosterone + SHBG من أي معمل قبل البدء وبعد 3 شهور.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 10: PRE & POST WORKOUT -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>⚡</span> قبل وبعد التمرين – التفصيلة الكاملة
+    <span class="badge blue">أيام التمرين فقط</span>
+  </div>
+
+  <div class="alert info">
+    <span>⏰</span>
+    <div>بما إنك بتشتغل 9–3 والتمرين بعد الشغل: <strong>التمرين 3:30–4:30م</strong> – وده وقت مثالي جداً للأداء والهرمونات.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+
+    <!-- PRE WORKOUT -->
+    <div style="background: rgba(86,197,150,0.06); border: 1px solid var(--green); border-radius: 12px; padding: 18px;">
+      <div style="font-weight:900; color:var(--green); margin-bottom:14px; font-size:1rem;">🟢 قبل التمرين</div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">⏱ 30-45 دقيقة قبل</div>
+        <div style="font-size:0.85rem;">
+          <strong style="color:var(--accent)">قهوة سوداء (1 كوب)</strong><br>
+          <span style="color:var(--muted)">أفضل Pre-Workout طبيعي. ترفع الطاقة، تحسن الأداء، وتساعد على حرق الدهون أثناء التمرين.</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">🍽 أكل قبل التمرين (لو بدأت الـ3:30)</div>
+        <div class="tbl-wrap"><table style="min-width: unset;">
+          <tr><th>الخيار</th><th>kcal</th><th>بروتين</th></tr>
+          <tr><td>موز + زبدة سودانية 1م.ص</td><td class="kcal">200</td><td class="protein">5جم</td></tr>
+          <tr><td>تفاحة + 15 لوزة</td><td class="kcal">190</td><td class="protein">5جم</td></tr>
+          <tr><td>عيش بلدي أسمر نص رغيف + جبن قريش</td><td class="kcal">180</td><td class="protein">12جم</td></tr>
+        </table></div>
+        <div class="note">* لو الفطار كان الساعة 12م والتمرين 3:30م فمش لازم تاكل تاني قبله – السناك اللي بعد الفطار يكفي.</div>
+      </div>
+
+      <div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">💧 ماء قبل التمرين</div>
+        <div style="font-size:0.85rem;">اشرب <strong>500مل</strong> خلال الساعة اللي قبل التمرين. لا تبدأ تمرين وانت عطشان.</div>
+      </div>
+    </div>
+
+    <!-- POST WORKOUT -->
+    <div style="background: rgba(91,156,246,0.06); border: 1px solid var(--blue); border-radius: 12px; padding: 18px;">
+      <div style="font-weight:900; color:var(--blue); margin-bottom:14px; font-size:1rem;">🔵 بعد التمرين</div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">⏱ أول 30-45 دقيقة (النافذة الذهبية)</div>
+        <div class="tbl-wrap"><table style="min-width: unset;">
+          <tr><th>الخيار</th><th>kcal</th><th>بروتين</th><th>ملاحظة</th></tr>
+          <tr><td>جبن قريش 200جم + موز</td><td class="kcal">230</td><td class="protein">26جم</td><td class="alt">⭐ الأفضل</td></tr>
+          <tr><td>زبادي طبيعي 200جم + تفاحة</td><td class="kcal">210</td><td class="protein">14جم</td><td class="alt">سريع وعملي</td></tr>
+          <tr><td>فراخ مسلوقة 150جم + موز</td><td class="kcal">260</td><td class="protein">38جم</td><td class="alt">لو جعان</td></tr>
+          <tr><td>حليب 300مل + موز</td><td class="kcal">245</td><td class="protein">12جم</td><td class="alt">الأبسط</td></tr>
+        </table></div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">💧 ماء بعد التمرين</div>
+        <div style="font-size:0.85rem;">اشرب <strong>500-700مل</strong> فور انتهاء التمرين. لو اتعرقت كتير وزّد لـ1 لتر.</div>
+      </div>
+
+      <div>
+        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">🍗 وجبة الغداء (بعد 1-1.5 ساعة من التمرين)</div>
+        <div style="font-size:0.85rem; color:var(--muted);">الغداء الساعة 5:30م = وجبة التعافي الكاملة. وجبة غنية بالبروتين + كارب = إعادة بناء العضلات.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>⏱ تايم لاين يوم التمرين الكامل</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>الوقت</th><th>الفعل</th><th>التفاصيل</th></tr>
+    <tr><td style="white-space:nowrap; color:var(--accent)"><strong>11:30 ص</strong></td><td>💧 ماء قبل الفطار</td><td>500مل (كوبين)</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--accent)"><strong>12:00 م</strong></td><td>🍳 الفطار</td><td>وجبة 1 – كارب + بروتين كافيين ممنوع بعد الـ2</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--accent)"><strong>1:00 م</strong></td><td>⬆️ للشغل / اتمم شغلك</td><td>—</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--green)"><strong>3:00 م</strong></td><td>☕ قهوة قبل التمرين</td><td>كوب سوداء + 300مل ماء</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--green)"><strong>3:30 م</strong></td><td>🏋️ ابدأ التمرين</td><td>إحماء 5 دق → أوزان → كارديو</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--green)"><strong>4:30-4:45م</strong></td><td>✅ نهاية التمرين</td><td>تبريد + إطالة 5-10 دق</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--blue)"><strong>4:45 م</strong></td><td>💧 + 🥛 بعد التمرين</td><td>500-700مل ماء + سناك (جبن قريش / زبادي + فاكهة)</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--blue)"><strong>5:00 م</strong></td><td>💧 ماء قبل الغداء</td><td>500مل (كوبين)</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--blue)"><strong>5:30 م</strong></td><td>🍗 الغداء (وجبة التعافي)</td><td>أكبر وجبة – بروتين عالي + كارب</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--purple)"><strong>7:00 م</strong></td><td>💧 ماء قبل العشاء</td><td>500مل</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--purple)"><strong>7:30 م</strong></td><td>🥗 العشاء</td><td>خفيفة – بروتين + خضار</td></tr>
+    <tr><td style="white-space:nowrap; color:var(--red)"><strong>8:00 م</strong></td><td>🔒 إغلاق النافذة</td><td>ماء وشاي أعشاب فقط</td></tr>
+  </table></div>
+
+  <h3>🏋️ تفصيل التمرين داخل الجيم</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>المرحلة</th><th>المدة</th><th>التفاصيل</th><th>الهدف</th></tr>
+    <tr><td><strong style="color:var(--green)">إحماء</strong></td><td>8-10 دق</td><td>تريدميل بطيء (5 كم/ساعة) + تمدد ديناميكي للمفاصل</td><td>تجهيز الجسم وحماية المفاصل</td></tr>
+    <tr><td><strong style="color:var(--accent)">أوزان (Resistance)</strong></td><td>35-40 دق</td><td>3-4 تمارين رئيسية: 3 سيتات × 12-15 تكرار. راحة 90 ثانية.</td><td>حفاظ على العضلات + حرق دهون</td></tr>
+    <tr><td><strong style="color:var(--blue)">كارديو LISS</strong></td><td>20-25 دق</td><td>تريدميل 5.5-6 كم/ساعة أو دراجة ثابتة مستوى 6-8<br>معدل نبض مستهدف: 120-135 نبضة/دقيقة</td><td>حرق دهون مباشر بدون إجهاد العضلات</td></tr>
+    <tr><td><strong style="color:var(--purple)">تبريد</strong></td><td>5-8 دق</td><td>مشي بطيء جداً + إطالة ثابتة للعضلات المُشغَّلة</td><td>تعافي أسرع وتقليل الألم</td></tr>
+  </table></div>
+
+  <div class="alert warning">
+    <span>💡</span>
+    <div>
+      <strong>نبضك أثناء الكارديو هو المقياس:</strong><br>
+      <span style="font-size:0.85rem;">
+      🟢 نطاق حرق الدهون: <strong>120-140 نبضة/دق</strong> (220 - عمرك × 60-70%)<br>
+      🔴 تجاوز 160+ = كارديو عالي جداً → كورتيزول يرتفع → ممكن يحرق العضلات. خففه.
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION: MEAL PREP TRACKER -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🧊</span> Meal Prep Tracker — Soup's Cubes
+    <span class="badge blue">تحضير أسبوعي</span>
+  </div>
+  <div class="alert info">
+    <span>💡</span>
+    <div>الفكرة: حضّر كل صنف مرة أسبوعياً بكميات كبيرة → وزّعه في trays أو أكواب → جمّده → كل يوم بس سخّن وقدّم. <strong>بيوفر ساعات طبخ أسبوعياً ويضمن ما تكسرش النظام بسبب "مفيش أكل جاهز".</strong></div>
+  </div>
+  <div class="tracker-bar-wrap" style="margin-bottom:18px;">
+    <div class="tracker-title">🧊 تقدم التحضير الأسبوعي</div>
+    <div class="tracker-progress">
+      <div class="t-bar-outer"><div class="t-bar-inner" id="prep-bar" style="width:0%"></div></div>
+      <div class="tracker-pct" id="prep-pct">0 / 9 أصناف</div>
+    </div>
+    <button class="reset-btn" onclick="resetPrep()">إعادة ضبط</button>
+  </div>
+  <div class="prep-grid" id="prep-grid">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION: MEASUREMENTS TRACKER -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>📐</span> تتبع المقاسات — كل أسبوعين
+    <span class="badge green">أهم من الوزن</span>
+  </div>
+  <div class="alert success">
+    <span>📏</span>
+    <div>في حالتك المقاسات أهم من الميزان — الجسم ممكن يتغير شكله وحجمه حتى لو الوزن وقف. قيّس كل أسبوعين صباح الثلاثاء قبل الأكل.</div>
+  </div>
+  <div class="meas-grid" id="meas-summary">
+    <div class="meas-card">
+      <div class="sd-label">الخصر 👖</div>
+      <div class="meas-val-big" id="meas-waist-last">— سم</div>
+      <div class="meas-diff" id="meas-waist-diff"></div>
+    </div>
+    <div class="meas-card">
+      <div class="sd-label">الأرداف</div>
+      <div class="meas-val-big" id="meas-hip-last">— سم</div>
+      <div class="meas-diff" id="meas-hip-diff"></div>
+    </div>
+    <div class="meas-card">
+      <div class="sd-label">الذراع 💪</div>
+      <div class="meas-val-big" id="meas-arm-last">— سم</div>
+      <div class="meas-diff" id="meas-arm-diff"></div>
+    </div>
+    <div class="meas-card">
+      <div class="sd-label">الرقبة</div>
+      <div class="meas-val-big" id="meas-neck-last">— سم</div>
+      <div class="meas-diff" id="meas-neck-diff"></div>
+    </div>
+    <div class="meas-card">
+      <div class="sd-label">الصدر</div>
+      <div class="meas-val-big" id="meas-chest-last">— سم</div>
+      <div class="meas-diff" id="meas-chest-diff"></div>
+    </div>
+  </div>
+  <h3>➕ أضف قياس جديد</h3>
+  <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; margin-bottom:18px;">
+    <div><div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">📅 التاريخ</div><input type="date" id="meas-date" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Cairo',sans-serif;padding:7px 10px;font-size:0.85rem;"></div>
+    <div><div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">خصر (سم)</div><input type="number" id="m-waist" class="meas-input" placeholder="—" step="0.5"></div>
+    <div><div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">أرداف (سم)</div><input type="number" id="m-hip" class="meas-input" placeholder="—" step="0.5"></div>
+    <div><div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">ذراع (سم)</div><input type="number" id="m-arm" class="meas-input" placeholder="—" step="0.5"></div>
+    <div><div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">رقبة (سم)</div><input type="number" id="m-neck" class="meas-input" placeholder="—" step="0.5"></div>
+    <div><div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">صدر (سم)</div><input type="number" id="m-chest" class="meas-input" placeholder="—" step="0.5"></div>
+    <button onclick="saveMeasurement()" style="background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-weight:700;font-size:0.85rem;padding:9px 20px;cursor:pointer;">حفظ القياس</button>
+  </div>
+  <h3>📊 سجل المقاسات</h3>
+  <div class="tbl-wrap">
+    <table id="meas-table">
+      <tr><th>التاريخ</th><th>الخصر</th><th>الأرداف</th><th>الذراع</th><th>الرقبة</th><th>الصدر</th><th></th></tr>
+      <tr><td colspan="7" style="text-align:center;color:var(--muted);font-size:0.85rem;">لا توجد قياسات بعد — أضف أول قياس لك الآن</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION: WORKOUT LOG -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>💪</span> سجل التمرين الأسبوعي
+    <span class="badge purple">تتبع التقدم</span>
+  </div>
+  <div class="alert info">
+    <span>📈</span>
+    <div>سجّل الأوزان المستخدمة كل جلسة. لو Leg Press بقى 70 بدل 60 = جسمك بيتحسن حتى لو الميزان وقف. ده دليل ملموس على الحرق وبناء القدرة.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+    <div style="font-size:0.85rem;color:var(--muted);">الأسبوع:</div>
+    <div class="wlog-week-sel" id="wlog-weeks"></div>
+    <button onclick="addWlogWeek()" style="background:var(--surface);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-family:'Cairo',sans-serif;font-size:0.8rem;font-weight:700;padding:5px 14px;cursor:pointer;">+ أسبوع جديد</button>
+  </div>
+  <div class="wlog-grid" id="wlog-grid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION: RECALC CALCULATOR -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <span>🧮</span> حاسبة إعادة الضبط
+    <span class="badge">كل 5 كجم</span>
+  </div>
+  <div class="calc-wrap">
+    <div style="font-size:0.9rem;color:var(--muted);margin-bottom:14px;">أدخل وزنك الحالي وهتعرف فوراً سعراتك الجديدة ومرحلتك:</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">وزنك الحالي (كجم)</div>
+        <input type="number" id="recalc-inp" class="calc-input-big" min="90" max="125" step="0.5" placeholder="121" oninput="doRecalc(this.value)">
+      </div>
+      <div style="flex:1;min-width:200px;" id="recalc-phase-box"></div>
+    </div>
+    <div class="calc-result" id="recalc-result"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ── Phase selector ──
+function showPhase(phase) {
+  document.querySelectorAll('.plan-phase').forEach(el => el.classList.remove('visible'));
+  const el = document.getElementById('phase-' + phase);
+  if (el) el.classList.add('visible');
+}
+
+// ── Sub-version (train/rest within a phase) ──
+function showSubVer(btn, phase, ver) {
+  const parent = document.getElementById('phase-' + phase);
+  if (!parent) return;
+  parent.querySelectorAll('.sub-ver').forEach(el => el.classList.remove('visible'));
+  const target = document.getElementById(phase + '-' + ver);
+  if (target) target.classList.add('visible');
+  parent.querySelectorAll('.ver-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Version toggle ──
+function showVersion(ver) {
+  document.querySelectorAll('.plan-version').forEach(el => el.classList.remove('visible'));
+  document.getElementById('ver-' + ver).classList.add('visible');
+  document.querySelectorAll('.ver-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ── Countdown timer ──
+function updateCountdown() {
+  const target = new Date('2026-09-23T00:00:00');
+  const now = new Date();
+  const diff = target - now;
+  const el = document.getElementById('countdown-display');
+  if (!el) return;
+  if (diff <= 0) { el.textContent = '🎉 وصلت للهدف!'; el.style.color = 'var(--accent)'; return; }
+  const days  = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const mins  = Math.floor((diff % (1000*60*60)) / (1000*60));
+  el.textContent = `⏳ باقي ${days} يوم، ${hours} ساعة، ${mins} دقيقة`;
+}
+setInterval(updateCountdown, 60000);
+updateCountdown();
+
+// ── Checkpoint weight tracker ──
+const targets = [121,119,117,115,113,111,109,107,105,103,101,100];
+
+function updateCP(input) {
+  const cp = +input.dataset.cp;
+  const target = +input.dataset.target;
+  const actual = parseFloat(input.value);
+  const statusEl = document.getElementById('cp-status-' + cp);
+  if (isNaN(actual) || !statusEl) { if(statusEl) statusEl.textContent='—'; saveWeights(); return; }
+  const diff = actual - target;
+  if (Math.abs(diff) <= 0.9) {
+    statusEl.innerHTML = '<span style="color:var(--green);font-weight:700">✅ في الموعد</span>';
+  } else if (diff < 0) {
+    statusEl.innerHTML = `<span style="color:var(--blue);font-weight:700">🚀 متقدم ${Math.abs(diff).toFixed(1)} كجم</span>`;
+  } else {
+    statusEl.innerHTML = `<span style="color:var(--red);font-weight:700">⚠️ متأخر ${diff.toFixed(1)} كجم</span>`;
+  }
+  saveWeights();
+  updateOverallBar();
+}
+
+function updateOverallBar() {
+  // find latest entered weight
+  let latestW = null;
+  document.querySelectorAll('.weight-input').forEach(inp => {
+    const v = parseFloat(inp.value);
+    if (!isNaN(v)) latestW = v;
+  });
+  if (latestW === null) { latestW = 121; }
+  const start = 121, goal = 100;
+  const pct = Math.min(100, Math.max(0, Math.round((start - latestW) / (start - goal) * 100)));
+  const bar = document.getElementById('overall-bar');
+  const lbl = document.getElementById('overall-pct-lbl');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = pct + '%';
+}
+
+function saveWeights() {
+  const data = {};
+  document.querySelectorAll('.weight-input').forEach(inp => {
+    if (inp.value) data['cp_' + inp.dataset.cp] = inp.value;
+  });
+  try { localStorage.setItem('inbody_weights', JSON.stringify(data)); } catch {}
+}
+
+function loadWeights() {
+  try {
+    const data = JSON.parse(localStorage.getItem('inbody_weights') || '{}');
+    document.querySelectorAll('.weight-input').forEach(inp => {
+      const key = 'cp_' + inp.dataset.cp;
+      if (data[key]) { inp.value = data[key]; updateCP(inp); }
+    });
+  } catch {}
+}
+
+function clearWeights() {
+  document.querySelectorAll('.weight-input').forEach(inp => { inp.value = ''; });
+  document.querySelectorAll('[id^="cp-status-"]').forEach(el => el.textContent = '—');
+  try { localStorage.removeItem('inbody_weights'); } catch {}
+  updateOverallBar();
+}
+function toggleChk(el) {
+  const id = el.dataset.id;
+  const group = el.dataset.group;
+  el.classList.toggle('done');
+  const state = getState();
+  if (!state[group]) state[group] = {};
+  state[group][id] = el.classList.contains('done');
+  saveState(state);
+  updateBar(group);
+}
+
+function getState() {
+  try { return JSON.parse(localStorage.getItem('inbody_plan') || '{}'); } catch { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem('inbody_plan', JSON.stringify(s)); } catch {}
+}
+
+function updateBar(group) {
+  const items = document.querySelectorAll(`[data-group="${group}"]`);
+  const total = items.length;
+  const done  = document.querySelectorAll(`[data-group="${group}"].done`).length;
+  const pct   = total ? Math.round(done / total * 100) : 0;
+  const bar   = document.getElementById(group + '-bar');
+  const lbl   = document.getElementById(group + '-pct');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) {
+    const labels = { daily:'مهمة', workout:'تمرين', shop:'صنف' };
+    lbl.textContent = `${done} / ${total} ${labels[group]||''}`;
+  }
+  if (bar) {
+    bar.style.background = pct === 100 ? 'var(--accent)' : 'var(--green)';
+  }
+}
+
+function resetGroup(group) {
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(el => el.classList.remove('done'));
+  const state = getState();
+  state[group] = {};
+  saveState(state);
+  updateBar(group);
+}
+
+// ════════════════════════════════════════════════
+// ① STICKY DAILY DASHBOARD
+// ════════════════════════════════════════════════
+const SD_KEY = 'inbody_sticky_v1';
+function sdLoad() {
+  const d = new Date().toISOString().split('T')[0];
+  try { return JSON.parse(localStorage.getItem(SD_KEY + '_' + d) || '{}'); } catch { return {}; }
+}
+function sdSave(data) {
+  const d = new Date().toISOString().split('T')[0];
+  try { localStorage.setItem(SD_KEY + '_' + d, JSON.stringify(data)); } catch {}
+}
+function sdGetData() {
+  const s = sdLoad();
+  return {
+    dayType: s.dayType || 'train',
+    cal: s.cal || 0,
+    water: s.water || 0,
+    checks: s.checks || {}
+  };
+}
+
+function sdInit() {
+  const data = sdGetData();
+  // date
+  const el = document.getElementById('sd-date');
+  if(el) el.textContent = new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+  // day type
+  setDayType(data.dayType, false);
+  // cal
+  const ci = document.getElementById('sd-cal-inp');
+  if(ci) ci.value = data.cal || '';
+  sdUpdateCal(data.cal);
+  // water
+  document.getElementById('sd-water').textContent = data.water;
+  // checks
+  document.querySelectorAll('[data-sdchk]').forEach(el => {
+    if(data.checks[el.dataset.sdchk]) el.classList.add('done');
+  });
+  sdUpdateWindow();
+  setInterval(sdUpdateWindow, 30000);
+}
+
+function setDayType(type, save=true) {
+  const trainBtn = document.getElementById('tog-train');
+  const restBtn  = document.getElementById('tog-rest');
+  if(trainBtn) { trainBtn.className = 'day-tog-btn' + (type==='train' ? ' active-train' : ''); }
+  if(restBtn)  { restBtn.className  = 'day-tog-btn' + (type==='rest'  ? ' active-rest'  : ''); }
+  const target = type === 'train' ? 2000 : 1700;
+  const tEl = document.getElementById('sd-cal-target');
+  if(tEl) tEl.textContent = '/ ' + target;
+  if(save) {
+    const d = sdGetData(); d.dayType = type; sdSave(d);
+    const ci = document.getElementById('sd-cal-inp');
+    if(ci) sdUpdateCal(ci.value || 0);
+  }
+}
+
+function sdUpdateCal(val) {
+  const data = sdGetData();
+  const target = data.dayType === 'train' ? 2000 : 1700;
+  const pct = Math.min(100, Math.round((+val / target) * 100));
+  const bar = document.getElementById('sd-cal-bar');
+  if(bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pct >= 95 ? 'var(--accent)' : pct >= 70 ? 'var(--blue)' : 'var(--green)';
+  }
+  const d = sdGetData(); d.cal = +val; sdSave(d);
+}
+
+function sdWater(delta) {
+  const data = sdGetData();
+  data.water = Math.max(0, Math.min(15, (data.water || 0) + delta));
+  sdSave(data);
+  const el = document.getElementById('sd-water');
+  if(el) el.textContent = data.water;
+}
+
+function sdToggle(el) {
+  el.classList.toggle('done');
+  const data = sdGetData();
+  if(!data.checks) data.checks = {};
+  data.checks[el.dataset.sdchk] = el.classList.contains('done');
+  sdSave(data);
+}
+
+function sdUpdateWindow() {
+  const el = document.getElementById('sd-window');
+  if(!el) return;
+  const now = new Date();
+  const close = new Date(); close.setHours(20,0,0,0);
+  const open  = new Date(); open.setHours(12,0,0,0);
+  if(now < open) {
+    const diff = open - now;
+    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000);
+    el.textContent = `⏳ تفتح بعد ${h}س ${m}د`;
+    el.style.color = 'var(--muted)';
+  } else if(now >= open && now < close) {
+    const diff = close - now;
+    const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000);
+    el.textContent = `🟢 باقي ${h}س ${m}د`;
+    el.style.color = 'var(--green)';
+  } else {
+    el.textContent = '🔒 مغلقة';
+    el.style.color = 'var(--red)';
+  }
+}
+
+// ════════════════════════════════════════════════
+// ② MEAL PREP TRACKER
+// ════════════════════════════════════════════════
+const PREP_ITEMS = [
+  { key:'shawarma_chicken', icon:'🫓', name:'شاورما فراخ', color:'var(--blue)',
+    qty:'فراخ 1كجم + بصل 300جم + فلفل 250جم + زبادي 100جم',
+    steps:'تتبيل 4 ساعات ← شوي في الفرن 200° / 25د ← تقطيع شرايح',
+    tray:'5 حصص × 220جم', freeze:'8 أسابيع — سخّن مع رشة ماء',
+    cal:'490 kcal / حصة', protein:'52جم' },
+  { key:'shredded_beef', icon:'🌯', name:'شاورما اللحم المفتت', color:'var(--red)',
+    qty:'لحم بقري 1كجم + بصل 2 + ثوم 6 فص + توابل',
+    steps:'طنجرة ضغط 60د ← تفتيت ← تحمير خفيف في الطاسة',
+    tray:'5 حصص × 200جم', freeze:'8 أسابيع — بكيسات زبالة فاكيوم',
+    cal:'520 kcal / حصة', protein:'48جم' },
+  { key:'kofta', icon:'🥩', name:'كفتة بالصلصة', color:'var(--purple)',
+    qty:'لحم مفروم 1كجم + بقدونس + بصل + بيض 1',
+    steps:'خلط ← تشكيل أصابع ← تحمير خفيف ← إضافة صلصة طماطم 20د',
+    tray:'5 حصص', freeze:'6 أسابيع — في الصلصة مباشرة',
+    cal:'510 kcal / حصة', protein:'46جم' },
+  { key:'fish', icon:'🐟', name:'سمك مشوي', color:'var(--green)',
+    qty:'سمك 1.2كجم + خضار 500جم + ليمون + ثوم',
+    steps:'تتبيل ← شوي في الفرن 200° / 25د',
+    tray:'5 حصص', freeze:'4 أسابيع — فرن للتسخين',
+    cal:'480 kcal / حصة', protein:'44جم' },
+  { key:'mushroom_chicken', icon:'🍗', name:'فراخ بالمشروم', color:'var(--accent2)',
+    qty:'فراخ 1كجم + مشروم 400جم + بصل + ثوم',
+    steps:'تشويح فراخ ← إضافة بصل ومشروم ← تكثيف الصوص',
+    tray:'5 حصص', freeze:'8 أسابيع — رشة ماء عند التسخين',
+    cal:'590 kcal / حصة', protein:'58جم' },
+  { key:'veg_soup', icon:'🍲', name:'شوربة خضار (Soup Cube)', color:'var(--accent)',
+    qty:'كوسة 300جم + جزر 250جم + بطاطا 200جم + مرق 1 لتر',
+    steps:'سلق ← هرس جزئي',
+    tray:'8-10 أكواب', freeze:'10 أسابيع — في أكواب أو trays',
+    cal:'90-110 kcal / كوب', protein:'3-5جم' },
+  { key:'carrot_soup', icon:'🥕', name:'شوربة جزر (Soup Cube)', color:'var(--accent)',
+    qty:'جزر 500جم + بصل 100جم + مرق 800مل + زنجبيل 5جم',
+    steps:'تشويح ← سلق ← خلط ناعم',
+    tray:'8 أكواب', freeze:'10 أسابيع',
+    cal:'95 kcal / كوب', protein:'3جم' },
+  { key:'zucchini_soup', icon:'🥣', name:'شوربة كوسة (Soup Cube)', color:'var(--accent)',
+    qty:'كوسة 500جم + بصل + ثوم + مرق 800مل',
+    steps:'سلق ← خلط حتى كريمية',
+    tray:'8 أكواب', freeze:'8 أسابيع',
+    cal:'90 kcal / كوب', protein:'4جم' },
+  { key:'tomato_sauce', icon:'🍅', name:'صلصة طماطم طبيعية', color:'var(--red)',
+    qty:'طماطم 1كجم + بصل + ثوم + معجون 30جم',
+    steps:'تشويح بصل ← إضافة طماطم ← تسبيك 20د',
+    tray:'10 حصص × نص كوب', freeze:'12 أسبوع',
+    cal:'60 kcal / حصة', protein:'2جم' },
+];
+
+const PREP_KEY = 'inbody_prep_v1';
+function prepLoad() { try { return JSON.parse(localStorage.getItem(PREP_KEY) || '{}'); } catch { return {}; } }
+function prepSave(d) { try { localStorage.setItem(PREP_KEY, JSON.stringify(d)); } catch {} }
+
+function renderPrepGrid() {
+  const done = prepLoad();
+  const grid = document.getElementById('prep-grid');
+  if(!grid) return;
+  grid.innerHTML = PREP_ITEMS.map(item => `
+    <div class="prep-card ${done[item.key] ? 'prepped' : ''}" id="pcard-${item.key}">
+      <div class="prep-card-head" style="background:linear-gradient(135deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0));">
+        <div class="prep-done-btn" onclick="togglePrep('${item.key}')"></div>
+        <div style="flex:1;">
+          <div style="font-weight:900;font-size:0.95rem;">${item.icon} ${item.name}</div>
+          <div style="font-size:0.72rem;color:var(--muted);">${item.cal} • ${item.protein} بروتين</div>
+        </div>
+        <span class="prep-tag" style="background:rgba(0,0,0,.2);color:${item.color};border:1px solid ${item.color};">${item.tray}</span>
+      </div>
+      <div class="prep-card-body">
+        <div><strong style="color:var(--text);">📦 المقادير:</strong> ${item.qty}</div>
+        <div><strong style="color:var(--text);">👨‍🍳 الطريقة:</strong> ${item.steps}</div>
+        <div class="freeze-badge">🧊 ${item.freeze}</div>
+      </div>
+    </div>
+  `).join('');
+  updatePrepBar();
+}
+
+function togglePrep(key) {
+  const done = prepLoad();
+  done[key] = !done[key];
+  prepSave(done);
+  const card = document.getElementById('pcard-' + key);
+  if(card) card.classList.toggle('prepped', done[key]);
+  updatePrepBar();
+}
+
+function updatePrepBar() {
+  const done = prepLoad();
+  const total = PREP_ITEMS.length;
+  const count = PREP_ITEMS.filter(i => done[i.key]).length;
+  const pct = Math.round(count/total*100);
+  const bar = document.getElementById('prep-bar');
+  const lbl = document.getElementById('prep-pct');
+  if(bar) { bar.style.width = pct+'%'; bar.style.background = pct===100?'var(--accent)':'var(--green)'; }
+  if(lbl) lbl.textContent = `${count} / ${total} أصناف`;
+}
+
+function resetPrep() {
+  prepSave({});
+  renderPrepGrid();
+}
+
+// ════════════════════════════════════════════════
+// ③ MEASUREMENTS TRACKER
+// ════════════════════════════════════════════════
+const MEAS_KEY = 'inbody_meas_v1';
+function measLoad() { try { return JSON.parse(localStorage.getItem(MEAS_KEY) || '[]'); } catch { return []; } }
+function measSave(d) { try { localStorage.setItem(MEAS_KEY, JSON.stringify(d)); } catch {} }
+
+function saveMeasurement() {
+  const date  = document.getElementById('meas-date').value;
+  const waist = parseFloat(document.getElementById('m-waist').value) || null;
+  const hip   = parseFloat(document.getElementById('m-hip').value)   || null;
+  const arm   = parseFloat(document.getElementById('m-arm').value)   || null;
+  const neck  = parseFloat(document.getElementById('m-neck').value)  || null;
+  const chest = parseFloat(document.getElementById('m-chest').value) || null;
+  if(!date) { alert('اختر التاريخ الأول'); return; }
+  const data = measLoad();
+  data.push({ date, waist, hip, arm, neck, chest });
+  data.sort((a,b) => a.date.localeCompare(b.date));
+  measSave(data);
+  ['meas-date','m-waist','m-hip','m-arm','m-neck','m-chest'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  renderMeasurements();
+}
+
+function renderMeasurements() {
+  const data = measLoad();
+  // summary cards
+  const fields = [
+    {key:'waist', id:'waist', label:'خصر'},
+    {key:'hip',   id:'hip',   label:'أرداف'},
+    {key:'arm',   id:'arm',   label:'ذراع'},
+    {key:'neck',  id:'neck',  label:'رقبة'},
+    {key:'chest', id:'chest', label:'صدر'},
+  ];
+  fields.forEach(f => {
+    const vals = data.map(d => d[f.key]).filter(v => v!=null);
+    const last  = vals.length ? vals[vals.length-1] : null;
+    const first = vals.length ? vals[0] : null;
+    const lEl = document.getElementById('meas-'+f.id+'-last');
+    const dEl = document.getElementById('meas-'+f.id+'-diff');
+    if(lEl) lEl.textContent = last ? last + ' سم' : '— سم';
+    if(dEl && last && first && last !== first) {
+      const diff = (last - first).toFixed(1);
+      const sign = diff < 0 ? '' : '+';
+      dEl.textContent = sign + diff + ' سم من البداية';
+      dEl.style.color = diff < 0 ? 'var(--green)' : 'var(--red)';
+    }
+  });
+  // table
+  const tbl = document.getElementById('meas-table');
+  if(!tbl) return;
+  if(!data.length) {
+    tbl.innerHTML = '<tr><th>التاريخ</th><th>الخصر</th><th>الأرداف</th><th>الذراع</th><th>الرقبة</th><th>الصدر</th><th></th></tr><tr><td colspan="7" style="text-align:center;color:var(--muted);font-size:0.85rem;">لا توجد قياسات بعد</td></tr>';
+    return;
+  }
+  tbl.innerHTML = `<tr><th>التاريخ</th><th>الخصر</th><th>الأرداف</th><th>الذراع</th><th>الرقبة</th><th>الصدر</th><th></th></tr>` +
+    [...data].reverse().map((row, i) => `
+      <tr>
+        <td>${new Date(row.date+'T12:00:00').toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'})}</td>
+        <td>${row.waist ?? '—'} سم</td>
+        <td>${row.hip   ?? '—'} سم</td>
+        <td>${row.arm   ?? '—'} سم</td>
+        <td>${row.neck  ?? '—'} سم</td>
+        <td>${row.chest ?? '—'} سم</td>
+        <td><button onclick="deleteMeas(${data.length-1-i})" style="background:transparent;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:0.75rem;">حذف</button></td>
+      </tr>
+    `).join('');
+}
+
+function deleteMeas(index) {
+  const data = measLoad();
+  data.splice(index, 1);
+  measSave(data);
+  renderMeasurements();
+}
+
+// ════════════════════════════════════════════════
+// ④ WORKOUT LOG
+// ════════════════════════════════════════════════
+const WLOG_KEY = 'inbody_wlog_v1';
+const WLOG_EXERCISES = {
+  'mon': { label: 'الاثنين 🏋️', exercises: ['Leg Press','Leg Curl','Chest Press','Seated Row','Shoulder Press','كارديو (دق/د)'] },
+  'wed': { label: 'الأربعاء 🏋️', exercises: ['Lat Pulldown','Cable Row','Dumbbell Curl','Tricep Pushdown','Hip Abductor','كارديو (دق/د)'] },
+  'fri': { label: 'الجمعة 🏋️', exercises: ['Incline Chest Press','Smith Squat','Calf Raise','Face Pulls','Plank (ثانية)','كارديو (دق/د)'] },
+};
+
+function wlogLoad() { try { return JSON.parse(localStorage.getItem(WLOG_KEY) || '{"weeks":[],"current":0}'); } catch { return {weeks:[],current:0}; } }
+function wlogSave(d) { try { localStorage.setItem(WLOG_KEY, JSON.stringify(d)); } catch {} }
+
+function addWlogWeek() {
+  const data = wlogLoad();
+  const num = data.weeks.length + 1;
+  data.weeks.push({ label: 'أسبوع ' + num, date: new Date().toISOString().split('T')[0], log: {} });
+  data.current = data.weeks.length - 1;
+  wlogSave(data);
+  renderWlog();
+}
+
+function renderWlog() {
+  const data = wlogLoad();
+  const weeksEl = document.getElementById('wlog-weeks');
+  const gridEl  = document.getElementById('wlog-grid');
+  if(!weeksEl || !gridEl) return;
+  if(!data.weeks.length) {
+    weeksEl.innerHTML = '';
+    gridEl.innerHTML = '<div class="alert info" style="width:100%;"><span>💡</span><div>اضغط "+ أسبوع جديد" لتبدأ تسجيل أول جلسة تمرين.</div></div>';
+    return;
+  }
+  weeksEl.innerHTML = data.weeks.map((w,i) => `
+    <button class="wlog-week-btn ${i===data.current?'active':''}" onclick="selectWlogWeek(${i})">${w.label}<br><span style="font-size:0.68rem;font-weight:400;">${w.date}</span></button>
+  `).join('');
+  const week = data.weeks[data.current];
+  gridEl.innerHTML = Object.entries(WLOG_EXERCISES).map(([day, info]) => {
+    const prev = data.current > 0 ? (data.weeks[data.current-1].log[day] || {}) : {};
+    return `
+      <div class="wlog-card">
+        <div class="wlog-day">${info.label}</div>
+        ${info.exercises.map(ex => {
+          const val  = (week.log[day] || {})[ex] || '';
+          const pval = prev[ex] || '';
+          const pr   = pval ? `<span class="wlog-pr">قبل: ${pval}</span>` : '';
+          return `<div class="wlog-ex">
+            <span class="wlog-ex-name">${ex}</span>
+            ${pr}
+            <input class="wlog-inp" type="text" placeholder="كجم×رابط" value="${val}"
+              oninput="saveWlogEntry('${day}','${ex}',this.value)">
+          </div>`;
+        }).join('')}
+      </div>`;
+  }).join('');
+}
+
+function selectWlogWeek(i) {
+  const data = wlogLoad();
+  data.current = i;
+  wlogSave(data);
+  renderWlog();
+}
+
+function saveWlogEntry(day, ex, val) {
+  const data = wlogLoad();
+  if(!data.weeks.length) return;
+  if(!data.weeks[data.current].log[day]) data.weeks[data.current].log[day] = {};
+  data.weeks[data.current].log[day][ex] = val;
+  wlogSave(data);
+}
+
+// ════════════════════════════════════════════════
+// ⑤ RECALCULATION CALCULATOR
+// ════════════════════════════════════════════════
+function doRecalc(w) {
+  const weight = parseFloat(w);
+  const resultEl = document.getElementById('recalc-result');
+  const phaseEl  = document.getElementById('recalc-phase-box');
+  if(!resultEl || !phaseEl) return;
+  if(isNaN(weight) || weight < 90 || weight > 130) {
+    resultEl.innerHTML = '';
+    phaseEl.innerHTML = '';
+    return;
+  }
+  // Determine phase
+  let phase, phaseLabel, phaseColor;
+  if(weight >= 116)      { phase=1; phaseLabel='المرحلة الأولى';  phaseColor='var(--accent)'; }
+  else if(weight >= 111) { phase=2; phaseLabel='المرحلة الثانية'; phaseColor='var(--blue)'; }
+  else if(weight >= 106) { phase=3; phaseLabel='المرحلة الثالثة'; phaseColor='var(--purple)'; }
+  else                   { phase=4; phaseLabel='المرحلة الرابعة 🎯'; phaseColor='var(--green)'; }
+
+  // BMR via Mifflin-St Jeor: men = 10w + 6.25h - 5a + 5
+  const bmr  = Math.round(10 * weight + 6.25 * 180 - 5 * 27 + 5);
+  const tdee = Math.round(bmr * 1.4);
+  const trainCal = Math.round(tdee - 530);
+  const restCal  = Math.round(tdee - 830);
+  const protein  = 135; // fixed
+  const trainCarb = Math.max(150, Math.round((trainCal - protein*4 - 65*9) / 4));
+  const restCarb  = Math.max(100, Math.round((restCal  - protein*4 - 58*9) / 4));
+  const lost = (121 - weight).toFixed(1);
+  const remain = (weight - 100).toFixed(1);
+
+  phaseEl.innerHTML = `
+    <div style="background:rgba(0,0,0,.2);border:1px solid ${phaseColor};border-radius:10px;padding:12px 16px;text-align:center;">
+      <div style="font-weight:900;font-size:1.1rem;color:${phaseColor};">${phaseLabel}</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;">خسرت ${lost} كجم • باقي ${remain} كجم للهدف</div>
+    </div>`;
+
+  resultEl.innerHTML = `
+    <div class="calc-res-card">
+      <div class="calc-res-val" style="color:var(--muted);">${bmr}</div>
+      <div class="calc-res-lbl">BMR الجديد (kcal)</div>
+    </div>
+    <div class="calc-res-card">
+      <div class="calc-res-val" style="color:var(--blue);">${tdee}</div>
+      <div class="calc-res-lbl">TDEE (سعرات الصيانة)</div>
+    </div>
+    <div class="calc-res-card" style="border-color:var(--accent);">
+      <div class="calc-res-val" style="color:var(--accent);">${trainCal}</div>
+      <div class="calc-res-lbl">🏋️ سعرات يوم التمرين</div>
+    </div>
+    <div class="calc-res-card" style="border-color:var(--blue);">
+      <div class="calc-res-val" style="color:var(--blue);">${restCal}</div>
+      <div class="calc-res-lbl">😴 سعرات يوم الراحة</div>
+    </div>
+    <div class="calc-res-card">
+      <div class="calc-res-val" style="color:var(--green);">${protein} جم</div>
+      <div class="calc-res-lbl">🥩 بروتين (ثابت)</div>
+    </div>
+    <div class="calc-res-card">
+      <div class="calc-res-val" style="color:var(--blue);">${trainCarb}</div>
+      <div class="calc-res-lbl">🌾 كارب تمرين (جم)</div>
+    </div>
+    <div class="calc-res-card">
+      <div class="calc-res-val" style="color:var(--muted);">${restCarb}</div>
+      <div class="calc-res-lbl">🌾 كارب راحة (جم)</div>
+    </div>
+    <div class="calc-res-card">
+      <div class="calc-res-val" style="color:var(--accent);font-size:1.1rem;">${phase}</div>
+      <div class="calc-res-lbl">رقم المرحلة الحالية</div>
+    </div>
+  `;
+}
+
+// ── Service Worker (offline support) ──
+if('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'inbody-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './'])));
+      self.skipWaiting();
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./'))));
+    });
+  `;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  const swURL = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swURL).catch(()=>{});
+}
+
+// ── iOS install banner ──
+window.addEventListener('DOMContentLoaded', () => {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone;
+  const dismissed = localStorage.getItem('install_dismissed');
+  if(isIOS && !isStandalone && !dismissed) {
+    setTimeout(() => {
+      const b = document.getElementById('install-banner');
+      if(b) b.classList.add('show');
+    }, 3000);
+  }
+});
+
+// ════════════════════════════════════════════════
+// INIT ALL ON LOAD
+// ════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // existing
+  const state = getState();
+  document.querySelectorAll('[data-group][data-id]').forEach(el => {
+    const g = el.dataset.group, id = el.dataset.id;
+    if (state[g] && state[g][id]) el.classList.add('done');
+  });
+  ['daily','workout','shop'].forEach(updateBar);
+  loadWeights();
+  updateOverallBar();
+  showPhase('p1');
+  // new features
+  sdInit();
+  renderPrepGrid();
+  renderMeasurements();
+  renderWlog();
+  const md = document.getElementById('meas-date');
+  if(md) md.value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>
